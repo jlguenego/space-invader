@@ -4,8 +4,8 @@
 
 - Date : 2026-01-10
 - Source de l’idée : `input/brief.md`
-- Document en cours : (aucun)
-- Prochain document pressenti : `docs/03-user-stories-et-flux.md`
+- Document en cours : `docs/06-architecture-technique.md` (v0.1 à rédiger)
+- Prochain document pressenti : `docs/07-guidelines-developpement.md`
 
 ## Avancement du référentiel
 
@@ -14,10 +14,10 @@
 | docs/00-contexte-et-vision.md          | FAIT     |
 | docs/01-utilisateurs-personas.md       | FAIT     |
 | docs/02-parcours-et-experience.md      | FAIT     |
-| docs/03-user-stories-et-flux.md        | TODO     |
-| docs/04-specification-fonctionnelle.md | TODO     |
-| docs/05-decisions-structurantes.md     | TODO     |
-| docs/06-architecture-technique.md      | TODO     |
+| docs/03-user-stories-et-flux.md        | FAIT     |
+| docs/04-specification-fonctionnelle.md | FAIT     |
+| docs/05-decisions-structurantes.md     | FAIT     |
+| docs/06-architecture-technique.md      | EN COURS |
 | docs/07-guidelines-developpement.md    | TODO     |
 | docs/08-qualite-tests-et-ux.md         | TODO     |
 | docs/09-cicd-et-deploiement.md         | TODO     |
@@ -36,3 +36,12 @@
 - 2026-01-10 : Ouverture de `clarifications/03-questions-ouvertes-parcours-et-ux.md` (questions ouvertes du doc 02).
 - 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/03-questions-ouvertes-parcours-et-ux.md` ; mise à jour de `docs/02-parcours-et-experience.md` en v0.2.
 - 2026-01-10 : Validation utilisateur : `docs/02-parcours-et-experience.md` marqué FAIT.
+- 2026-01-10 : Démarrage de `docs/03-user-stories-et-flux.md` (v0.1).
+- 2026-01-10 : Ouverture de `clarifications/04-details-score-et-sensibilite.md`.
+- 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/04-details-score-et-sensibilite.md` ; mise à jour de `docs/03-user-stories-et-flux.md` en v0.2.
+- 2026-01-10 : Validation utilisateur : `docs/03-user-stories-et-flux.md` marqué FAIT ; démarrage de `docs/04-specification-fonctionnelle.md` (v0.1).
+- 2026-01-10 : Rédaction v0.1 de `docs/04-specification-fonctionnelle.md`.
+- 2026-01-10 : Validation utilisateur : `docs/04-specification-fonctionnelle.md` marqué FAIT.
+- 2026-01-10 : Démarrage de `docs/05-decisions-structurantes.md` (v0.1) ; ouverture de `clarifications/05-choix-techniques-stack-et-stockage.md`.
+- 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/05-choix-techniques-stack-et-stockage.md` ; mise à jour de `docs/05-decisions-structurantes.md` en v0.2.
+- 2026-01-10 : Validation utilisateur : `docs/05-decisions-structurantes.md` marqué FAIT ; démarrage de `docs/06-architecture-technique.md`.
