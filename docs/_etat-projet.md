@@ -4,8 +4,8 @@
 
 - Date : 2026-01-10
 - Source de l’idée : `input/brief.md`
-- Document en cours : `docs/06-architecture-technique.md` (v0.1 à rédiger)
-- Prochain document pressenti : `docs/07-guidelines-developpement.md`
+- Document en cours : `docs/09-cicd-et-deploiement.md` (v0.1)
+- Prochain document pressenti : `docs/10-exploitation-et-maintenance.md`
 
 ## Avancement du référentiel
 
@@ -17,10 +17,10 @@
 | docs/03-user-stories-et-flux.md        | FAIT     |
 | docs/04-specification-fonctionnelle.md | FAIT     |
 | docs/05-decisions-structurantes.md     | FAIT     |
-| docs/06-architecture-technique.md      | EN COURS |
-| docs/07-guidelines-developpement.md    | TODO     |
-| docs/08-qualite-tests-et-ux.md         | TODO     |
-| docs/09-cicd-et-deploiement.md         | TODO     |
+| docs/06-architecture-technique.md      | FAIT     |
+| docs/07-guidelines-developpement.md    | FAIT     |
+| docs/08-qualite-tests-et-ux.md         | FAIT     |
+| docs/09-cicd-et-deploiement.md         | EN COURS |
 | docs/10-exploitation-et-maintenance.md | TODO     |
 
 ## Journal des actions
@@ -45,3 +45,8 @@
 - 2026-01-10 : Démarrage de `docs/05-decisions-structurantes.md` (v0.1) ; ouverture de `clarifications/05-choix-techniques-stack-et-stockage.md`.
 - 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/05-choix-techniques-stack-et-stockage.md` ; mise à jour de `docs/05-decisions-structurantes.md` en v0.2.
 - 2026-01-10 : Validation utilisateur : `docs/05-decisions-structurantes.md` marqué FAIT ; démarrage de `docs/06-architecture-technique.md`.
+- 2026-01-10 : Validation utilisateur : `docs/06-architecture-technique.md` marqué FAIT ; démarrage de `docs/07-guidelines-developpement.md`.
+- 2026-01-10 : Validation utilisateur : `docs/07-guidelines-developpement.md` marqué FAIT ; démarrage de `docs/08-qualite-tests-et-ux.md`.
+- 2026-01-10 : Validation utilisateur : `docs/08-qualite-tests-et-ux.md` marqué FAIT ; démarrage de `docs/09-cicd-et-deploiement.md`.
+- 2026-01-10 : Ouverture de `clarifications/06-deploiement-et-hebergement.md` (choix d’hébergement/déploiement).
+- 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/06-deploiement-et-hebergement.md` ; mise à jour de `docs/09-cicd-et-deploiement.md`.
