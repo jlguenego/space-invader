@@ -4,8 +4,8 @@
 
 - Date : 2026-01-10
 - Source de l’idée : `input/brief.md`
-- Document en cours : `docs/09-cicd-et-deploiement.md` (v0.1)
-- Prochain document pressenti : `docs/10-exploitation-et-maintenance.md`
+- Document en cours : `docs/10-exploitation-et-maintenance.md` (v0.1 à rédiger)
+- Prochain document pressenti : (fin du référentiel)
 
 ## Avancement du référentiel
 
@@ -20,8 +20,8 @@
 | docs/06-architecture-technique.md      | FAIT     |
 | docs/07-guidelines-developpement.md    | FAIT     |
 | docs/08-qualite-tests-et-ux.md         | FAIT     |
-| docs/09-cicd-et-deploiement.md         | EN COURS |
-| docs/10-exploitation-et-maintenance.md | TODO     |
+| docs/09-cicd-et-deploiement.md         | FAIT     |
+| docs/10-exploitation-et-maintenance.md | EN COURS |
 
 ## Journal des actions
 
@@ -50,3 +50,4 @@
 - 2026-01-10 : Validation utilisateur : `docs/08-qualite-tests-et-ux.md` marqué FAIT ; démarrage de `docs/09-cicd-et-deploiement.md`.
 - 2026-01-10 : Ouverture de `clarifications/06-deploiement-et-hebergement.md` (choix d’hébergement/déploiement).
 - 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/06-deploiement-et-hebergement.md` ; mise à jour de `docs/09-cicd-et-deploiement.md`.
+- 2026-01-10 : Validation utilisateur : `docs/09-cicd-et-deploiement.md` marqué FAIT ; démarrage de `docs/10-exploitation-et-maintenance.md`.
