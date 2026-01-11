@@ -138,7 +138,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique E — Boucle de jeu (Three.js) : engine, input, rendu
 
-- [ ] **id023** **(P0)** _(M)_ Intégrer Three.js et initialiser le rendu (scène/caméra/lumières)
+- [x] **id023** **(P0)** _(M)_ Intégrer Three.js et initialiser le rendu (scène/caméra/lumières)
 
   - But: Poser le socle WebGL 3D ; Livrable: module `render/` (init/resize/cleanup + rAF) ; Acceptation: scène 3D stable sans dépendre des re-renders React ; Deps: id018 ; Docs: /docs/05-decisions-structurantes.md → “D-14”, /docs/07-guidelines-developpement.md → “Boucle de jeu et React”.
 

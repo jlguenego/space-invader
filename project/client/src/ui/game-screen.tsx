@@ -1,4 +1,7 @@
 import { uiCardStyle, uiColors } from './ui-kit';
+import { useEffect, useRef } from 'react';
+
+import { createThreeRenderer } from '../render/three-renderer';
 
 export function GameScreen(props: {
   score: number;
@@ -6,6 +9,21 @@ export function GameScreen(props: {
   onGameOver: () => void;
 }): JSX.Element {
   const { score, mute, onGameOver } = props;
+
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const containerEl = viewportRef.current;
+    if (!containerEl) return;
+
+    const runtime = createThreeRenderer(containerEl, { maxPixelRatio: 2 });
+    runtime.resizeToContainer();
+    runtime.start();
+
+    return () => {
+      runtime.dispose();
+    };
+  }, []);
 
   return (
     <main
@@ -44,6 +62,17 @@ export function GameScreen(props: {
             <div style={{ fontSize: 12, color: uiColors.muted }}>Simuler une fin de partie</div>
           </button>
         </div>
+      </section>
+
+      <section style={{ ...uiCardStyle, marginTop: 14, padding: 0, overflow: 'hidden' }}>
+        <div
+          ref={viewportRef}
+          style={{
+            width: '100%',
+            height: 520,
+            background: '#070b16',
+          }}
+        />
       </section>
 
       <section style={{ ...uiCardStyle, marginTop: 14 }}>
