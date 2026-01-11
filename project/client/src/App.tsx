@@ -24,32 +24,38 @@ export function App(): JSX.Element {
   const uiScreenRef = useRef(uiState.screen);
   uiScreenRef.current = uiState.screen;
 
-  const engineRef = useRef<ReturnType<typeof createGameEngine> | null>(null);
-  if (!engineRef.current) {
-    engineRef.current = createGameEngine({
-      // Temporary MVP pacing (matches previous 5 points / 250ms).
-      scorePerSecond: 20,
-      maxStepMs: 100,
-      onScoreDelta: (amount) => dispatch({ type: 'INCREMENT_SCORE', amount }),
-      onGameOver: () => dispatch({ type: 'GAME_OVER' }),
-    });
-  }
-
-  const engine = engineRef.current;
-
   const inputRef = useRef<InputManager | null>(null);
+
+  const engineRef = useRef<ReturnType<typeof createGameEngine> | null>(null);
   if (!inputRef.current) {
     inputRef.current = new InputManager({
       onToggleMute: () => setPreferences((prev) => ({ ...prev, mute: !prev.mute })),
       onTogglePause: () => {
         const screen = uiScreenRef.current;
         if (screen === 'playing' || screen === 'paused') {
-          engine.togglePause();
+          engineRef.current?.togglePause();
           dispatch({ type: 'TOGGLE_PAUSE' });
         }
       },
     });
   }
+
+  if (!engineRef.current) {
+    engineRef.current = createGameEngine({
+      // Temporary MVP pacing (kept until id029 scoring rules).
+      scorePerSecond: 20,
+      maxStepMs: 100,
+      getInputState: () =>
+        inputRef.current?.getState() ?? {
+          movement: { left: false, right: false, up: false, down: false },
+          fire: false,
+        },
+      onScoreDelta: (amount) => dispatch({ type: 'INCREMENT_SCORE', amount }),
+      onGameOver: () => dispatch({ type: 'GAME_OVER' }),
+    });
+  }
+
+  const engine = engineRef.current;
 
   useEffect(() => {
     savePreferences(preferences);
@@ -126,7 +132,7 @@ export function App(): JSX.Element {
             score={uiState.score}
             mute={preferences.mute}
             paused={uiState.screen === 'paused'}
-            onGameOver={() => engine.triggerGameOver()}
+            getWorld={() => engine.getWorld()}
           />
           {uiState.screen === 'paused' && (
             <PauseOverlay

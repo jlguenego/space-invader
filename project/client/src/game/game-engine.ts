@@ -1,3 +1,7 @@
+import type { InputState } from './input-manager';
+import { DEFAULT_INPUT_STATE, type World, type WorldConfig } from './world-types';
+import { createInitialWorld, DEFAULT_WORLD_CONFIG, updateWorld } from './world-sim';
+
 export type GameEngineStatus = 'idle' | 'running' | 'paused' | 'gameover';
 
 export type GameEngineState =
@@ -13,10 +17,14 @@ export type GameEngineOptions = {
   onScoreChanged?: (score: number) => void;
   onStateChanged?: (next: GameEngineState) => void;
   onGameOver?: (finalScore: number) => void;
+  getInputState?: () => InputState;
+  onWorldChanged?: (world: World) => void;
+  worldConfig?: WorldConfig;
 };
 
 export type GameEngine = {
   getState: () => GameEngineState;
+  getWorld: () => World;
   startNewGame: () => void;
   togglePause: () => void;
   triggerGameOver: () => void;
@@ -42,11 +50,16 @@ function safeOptions(options: GameEngineOptions | undefined): Required<GameEngin
     onScoreChanged: options?.onScoreChanged ?? (() => {}),
     onStateChanged: options?.onStateChanged ?? (() => {}),
     onGameOver: options?.onGameOver ?? (() => {}),
+    getInputState: options?.getInputState ?? (() => DEFAULT_INPUT_STATE),
+    onWorldChanged: options?.onWorldChanged ?? (() => {}),
+    worldConfig: options?.worldConfig ?? DEFAULT_WORLD_CONFIG,
   };
 }
 
 export function createGameEngine(options?: GameEngineOptions): GameEngine {
   const opts = safeOptions(options);
+
+  let world = createInitialWorld(opts.worldConfig);
 
   let state: GameEngineState = { status: 'idle', score: 0 };
   let scoreRemainder = 0;
@@ -112,6 +125,18 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
     const clampedMs = clampStepMs(dtMs, opts.maxStepMs);
     if (clampedMs <= 0) return;
 
+    const input = opts.getInputState();
+    const result = updateWorld(world, input, clampedMs);
+    world = result.world;
+    opts.onWorldChanged(world);
+
+    for (const e of result.events) {
+      if (e.type === 'GAME_OVER') {
+        triggerGameOver();
+        return;
+      }
+    }
+
     if (opts.scorePerSecond <= 0) return;
 
     const points = (opts.scorePerSecond * clampedMs) / 1000;
@@ -129,6 +154,8 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
 
   function startNewGame(): void {
     scoreRemainder = 0;
+    world = createInitialWorld(opts.worldConfig);
+    opts.onWorldChanged(world);
     emitState({ status: 'running', score: 0 });
     emitScoreChanged(0);
     maybeStartRaf();
@@ -181,6 +208,7 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
 
   return {
     getState: () => state,
+    getWorld: () => world,
     startNewGame,
     togglePause,
     triggerGameOver,
