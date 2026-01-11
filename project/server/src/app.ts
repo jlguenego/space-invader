@@ -9,6 +9,16 @@ function isProduction() {
 
 const jsonBody: RequestHandler = express.json({ limit: '10kb' });
 
+const securityHeaders: RequestHandler = (_req, res, next) => {
+  // Minimal, dependency-free hardening suitable for MVP.
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  next();
+};
+
 const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
   const prod = isProduction();
 
@@ -46,7 +56,10 @@ const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
 export function createApp(options?: { apiRouter?: Router }) {
   const app = express();
 
+  app.disable('x-powered-by');
+
   app.use(jsonBody);
+  app.use(securityHeaders);
 
   const apiRouter = options?.apiRouter ?? createApiRouter();
   app.use('/api', apiRouter);

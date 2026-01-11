@@ -47,7 +47,7 @@ Le prompt généré doit **obligatoirement** contenir ces sections :
 
 ## Contraintes
 
-- ⚠️ **Ne réalise PAS la tâche**, rédige uniquement le prompt
+- ⚠️ **Ne réalise PAS le contenu de la tâche idNNN**, rédige uniquement le prompt
 - Consulte `AGENTS.md` pour comprendre l'architecture du projet (si présent)
 - Respecte les conventions du projet (voir `specifications/` si présent)
 - Base-toi sur `docs/` et `clarifications/` pour toute décision/règle : ne comble pas les trous “au hasard”.

@@ -104,7 +104,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Fournir le top 10 du jour ; Livrable: endpoint filtre `dayKeyParis` + tri desc + cap 10 ; Acceptation: réponse contient `timezone`, `dayKeyParis`, `entries` rangées ; Deps: id011, id012 ; Docs: /docs/06-architecture-technique.md → “GET /api/leaderboard/day”, /docs/04-specification-fonctionnelle.md → “Top 10 du jour”.
 
-- [ ] **id015** **(P0)** _(S)_ Ajouter protections serveur minimales (limits/headers/erreurs prod)
+- [x] **id015** **(P0)** _(S)_ Ajouter protections serveur minimales (limits/headers/erreurs prod)
 
   - But: Durcir le MVP sans sur-scope ; Livrable: limite payload JSON + headers de base + erreurs prod sans détails ; Acceptation: payload trop gros rejeté et aucune stacktrace exposée ; Deps: id010 ; Docs: /docs/09-cicd-et-deploiement.md → “Sécurité & conformité (minimum)”, /docs/07-guidelines-developpement.md → “Gestion d’erreurs”.
 

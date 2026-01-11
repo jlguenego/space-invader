@@ -34,6 +34,26 @@ describe('server /api socle', () => {
     }
   });
 
+  test('GET /api includes minimal security headers', async () => {
+    const app = createApp();
+    const srv = await start(app);
+
+    try {
+      const res = await fetch(`${srv.baseUrl}/api`);
+      expect(res.status).toBe(200);
+
+      expect(res.headers.get('x-powered-by')).toBeNull();
+      expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+      expect(res.headers.get('x-frame-options')).toBe('DENY');
+      expect(res.headers.get('referrer-policy')).toBe('no-referrer');
+      expect(res.headers.get('permissions-policy')).toBe(
+        'camera=(), microphone=(), geolocation=()',
+      );
+    } finally {
+      await srv.close();
+    }
+  });
+
   test('unknown /api route returns JSON error contract', async () => {
     const app = createApp();
     const srv = await start(app);
@@ -44,6 +64,31 @@ describe('server /api socle', () => {
 
       const body = await res.json();
       expect(body).toEqual({ ok: false, error: { code: 'NOT_FOUND', message: 'Not found' } });
+    } finally {
+      await srv.close();
+    }
+  });
+
+  test('JSON payload too large returns 413 and JSON error contract', async () => {
+    const app = createApp();
+    const srv = await start(app);
+
+    try {
+      const padding = 'a'.repeat(12 * 1024);
+      const res = await fetch(`${srv.baseUrl}/api/scores`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ score: 0, pseudo: 'Anonyme', padding }),
+      });
+
+      expect(res.status).toBe(413);
+      const body = await res.json();
+      expect(body).toEqual({
+        ok: false,
+        error: { code: 'PAYLOAD_TOO_LARGE', message: 'Payload too large' },
+      });
     } finally {
       await srv.close();
     }
