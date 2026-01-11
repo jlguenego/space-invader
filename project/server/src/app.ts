@@ -1,4 +1,7 @@
 import express, { type ErrorRequestHandler, type RequestHandler, type Router } from 'express';
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { AppError, toApiErrorBody, type ApiErrorCode } from './http/errors';
 import { createLogger, serializeError, type Logger } from './logger';
@@ -6,6 +9,27 @@ import { createApiRouter } from './routes';
 
 function isProduction() {
   return process.env.NODE_ENV === 'production';
+}
+
+function resolveDefaultClientDistDir(): string {
+  // server/src/app.ts -> project/server/src
+  const here = dirname(fileURLToPath(import.meta.url));
+  const projectRoot = join(here, '..', '..');
+  return join(projectRoot, 'client', 'dist');
+}
+
+function isLikelyAssetPath(pathname: string): boolean {
+  const last = pathname.split('/').pop() ?? '';
+  return last.includes('.');
+}
+
+function acceptsHtml(req: express.Request): boolean {
+  const accept = req.headers.accept;
+  if (typeof accept !== 'string' || accept.length === 0) {
+    return true;
+  }
+
+  return accept.includes('text/html') || accept.includes('*/*');
 }
 
 const jsonBody: RequestHandler = express.json({ limit: '10kb' });
@@ -106,7 +130,11 @@ function createErrorMiddleware(logger: Logger): ErrorRequestHandler {
   };
 }
 
-export function createApp(options?: { apiRouter?: Router; logger?: Logger }) {
+export function createApp(options?: {
+  apiRouter?: Router;
+  logger?: Logger;
+  spa?: { enabled?: boolean; distDir?: string };
+}) {
   const app = express();
   const logger = options?.logger ?? createLogger({ baseFields: { component: 'http' } });
 
@@ -118,8 +146,57 @@ export function createApp(options?: { apiRouter?: Router; logger?: Logger }) {
   const apiRouter = options?.apiRouter ?? createApiRouter();
   app.use('/api', apiRouter);
 
-  // Global 404 (kept JSON for now; can be adapted when serving SPA)
-  app.use((_req, _res, next) => {
+  const spaOptions = options?.spa;
+  const distDir = spaOptions?.distDir ?? resolveDefaultClientDistDir();
+  const spaEnabled = spaOptions?.enabled ?? existsSync(distDir);
+
+  if (spaEnabled) {
+    if (!existsSync(distDir)) {
+      throw new Error(`SPA distDir not found: ${distDir}`);
+    }
+
+    app.use(
+      express.static(distDir, {
+        index: false,
+        fallthrough: true,
+      }),
+    );
+
+    const indexPath = join(distDir, 'index.html');
+    app.use((req, res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') {
+        next();
+        return;
+      }
+
+      if (!acceptsHtml(req)) {
+        next();
+        return;
+      }
+
+      if (isLikelyAssetPath(req.path)) {
+        next();
+        return;
+      }
+
+      res.sendFile(indexPath);
+    });
+  }
+
+  // Global 404
+  // - For API routes, JSON contract is already handled by the /api router.
+  // - When serving the SPA, keep non-API 404s non-JSON to avoid leaking API-style errors to the UI.
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      next(new AppError({ status: 404, code: 'NOT_FOUND', message: 'Not found' }));
+      return;
+    }
+
+    if (spaEnabled) {
+      res.status(404).type('text/plain').send('Not found');
+      return;
+    }
+
     next(new AppError({ status: 404, code: 'NOT_FOUND', message: 'Not found' }));
   });
 

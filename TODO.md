@@ -112,7 +112,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Diagnostiquer en prod via stdout ; Livrable: logs démarrage + validation + I/O JSON + erreurs ; Acceptation: incident écriture JSON détectable via logs ; Deps: id010, id012 ; Docs: /docs/08-qualite-tests-et-ux.md → “Observabilité (MVP)”, /docs/10-exploitation-et-maintenance.md → “Logs”.
 
-- [ ] **id017** **(P0)** _(S)_ Servir le front buildé depuis Express (topologie A)
+- [x] **id017** **(P0)** _(S)_ Servir le front buildé depuis Express (topologie A)
   - But: Déployer 1 service UI+API ; Livrable: statics du build front + fallback SPA ; Acceptation: une seule origine en prod (CORS simplifié) ; Deps: id010, id018 ; Docs: /docs/09-cicd-et-deploiement.md → “Option A : Express sert aussi le front”.
 
 ### Épique D — Front-end (React) : UI shell, stockage local, intégration API
