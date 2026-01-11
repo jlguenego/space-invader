@@ -1,0 +1,9 @@
+{
+  "name": "@space-invaders/client",
+  "private": true,
+  "scripts": {
+    "dev": "bun ../scripts/not-initialized.ts client id018 '(Vite/React)'",
+    "build": "bun ../scripts/not-initialized.ts client id018 '(build Vite)'",
+    "test": "bun test"
+  }
+}

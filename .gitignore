@@ -1,0 +1,29 @@
+# Dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/build/
+
+# Caches
+**/.cache/
+**/.turbo/
+**/.vite/
+**/.eslintcache
+
+# Logs
+**/*.log
+
+# Environment files
+**/.env
+**/.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Runtime data (keep directory via .gitkeep)
+project/server/data/*
+!project/server/data/.gitkeep

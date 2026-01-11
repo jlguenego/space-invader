@@ -75,7 +75,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Aligner build/lint/tests et conventions ; Livrable: décision (JS/TS) + impacts CI ; Acceptation: pipeline CI cohérent avec la décision ; Deps: id006 ; Docs: /docs/09-cicd-et-deploiement.md → “Vérifications en CI”, /docs/07-guidelines-developpement.md → “Style & format”.
 
-- [ ] **id008** **(P0)** _(M)_ Mettre en place scripts monorepo (dev/build/test/lint) + formatage
+- [x] **id008** **(P0)** _(M)_ Mettre en place scripts monorepo (dev/build/test/lint) + formatage
 
   - But: Rendre le dev reproductible ; Livrable: scripts Bun (client+server) + config format (ex: Prettier) + intégration verrouillage Bun 1.3.5 ; Acceptation: `dev` lance client+server et CI exécute lint/format+tests ; Deps: id006, id007 ; Docs: /docs/07-guidelines-developpement.md → “Outillage & commandes”, “Style & format”, /docs/09-cicd-et-deploiement.md → “Pipeline CI (proposition)”, /docs/05-decisions-structurantes.md → “D-19”.
 

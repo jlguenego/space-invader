@@ -1,0 +1,9 @@
+{
+  "name": "@space-invaders/server",
+  "private": true,
+  "scripts": {
+    "dev": "bun ../scripts/not-initialized.ts server id010 '(Express)'",
+    "build": "bun ../scripts/not-initialized.ts server id010 '(build server)'",
+    "test": "bun test"
+  }
+}

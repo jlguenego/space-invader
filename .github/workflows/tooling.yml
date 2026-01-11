@@ -31,3 +31,28 @@ jobs:
         run: |
           chmod +x project/scripts/check-bun-version.sh
           project/scripts/check-bun-version.sh
+
+      - name: Install dependencies (project)
+        working-directory: project
+        run: |
+          bun install
+
+      - name: Lint (project)
+        working-directory: project
+        run: |
+          bun run lint
+
+      - name: Format check (project)
+        working-directory: project
+        run: |
+          bun run format:check
+
+      - name: Typecheck (project)
+        working-directory: project
+        run: |
+          bun run typecheck
+
+      - name: Tests (project)
+        working-directory: project
+        run: |
+          bun run test
