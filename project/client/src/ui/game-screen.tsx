@@ -6,24 +6,35 @@ import { createThreeRenderer } from '../render/three-renderer';
 export function GameScreen(props: {
   score: number;
   mute: boolean;
+  paused: boolean;
   onGameOver: () => void;
 }): JSX.Element {
-  const { score, mute, onGameOver } = props;
+  const { score, mute, paused, onGameOver } = props;
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const runtimeRef = useRef<ReturnType<typeof createThreeRenderer> | null>(null);
 
   useEffect(() => {
     const containerEl = viewportRef.current;
     if (!containerEl) return;
 
     const runtime = createThreeRenderer(containerEl, { maxPixelRatio: 2 });
+    runtimeRef.current = runtime;
     runtime.resizeToContainer();
     runtime.start();
 
     return () => {
+      runtimeRef.current = null;
       runtime.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    const runtime = runtimeRef.current;
+    if (!runtime) return;
+    if (paused) runtime.stop();
+    else runtime.start();
+  }, [paused]);
 
   return (
     <main
@@ -40,7 +51,7 @@ export function GameScreen(props: {
         <div>
           <h1 style={{ margin: 0 }}>En jeu</h1>
           <p style={{ margin: '8px 0 0', color: uiColors.muted }}>
-            Démo UI (pas encore de Three.js / engine). Pause : <strong>P</strong> — Mute :{' '}
+            Démo UI (rendu Three.js + moteur minimal). Pause : <strong>P</strong> — Mute :{' '}
             <strong>M</strong>
           </p>
         </div>

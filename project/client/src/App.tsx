@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 
 import type { Preferences } from './storage/preferences';
 import { loadPreferences, savePreferences } from './storage/preferences';
@@ -14,6 +14,8 @@ import { PauseOverlay } from './ui/pause-overlay';
 import { initialUiState, uiReducer } from './ui/ui-state-machine';
 import { uiColors } from './ui/ui-kit';
 
+import { createGameEngine } from './game/game-engine';
+
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!target) return false;
   if (!(target instanceof HTMLElement)) return false;
@@ -26,6 +28,19 @@ function isEditableTarget(target: EventTarget | null): boolean {
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
   const [uiState, dispatch] = useReducer(uiReducer, initialUiState);
+
+  const engineRef = useRef<ReturnType<typeof createGameEngine> | null>(null);
+  if (!engineRef.current) {
+    engineRef.current = createGameEngine({
+      // Temporary MVP pacing (matches previous 5 points / 250ms).
+      scorePerSecond: 20,
+      maxStepMs: 100,
+      onScoreDelta: (amount) => dispatch({ type: 'INCREMENT_SCORE', amount }),
+      onGameOver: () => dispatch({ type: 'GAME_OVER' }),
+    });
+  }
+
+  const engine = engineRef.current;
 
   useEffect(() => {
     savePreferences(preferences);
@@ -46,6 +61,7 @@ export function App(): JSX.Element {
 
       if (key === 'p') {
         if (uiState.screen === 'playing' || uiState.screen === 'paused') {
+          engine.togglePause();
           dispatch({ type: 'TOGGLE_PAUSE' });
         }
       }
@@ -53,18 +69,14 @@ export function App(): JSX.Element {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [uiState.screen]);
+  }, [engine, uiState.screen]);
 
-  // Simulated gameplay: score ticks while in playing.
+  // Cleanup: ensure no loop survives unmount.
   useEffect(() => {
-    if (uiState.screen !== 'playing') return;
-
-    const timer = window.setInterval(() => {
-      dispatch({ type: 'INCREMENT_SCORE', amount: 5 });
-    }, 250);
-
-    return () => window.clearInterval(timer);
-  }, [uiState.screen]);
+    return () => {
+      engine.stopLoop();
+    };
+  }, [engine]);
 
   // Load leaderboard when entering leaderboard screen.
   useEffect(() => {
@@ -108,7 +120,11 @@ export function App(): JSX.Element {
         <HomeScreen
           preferences={preferences}
           onChangePreferences={(patch) => setPreferences((prev) => ({ ...prev, ...patch }))}
-          onStartGame={() => dispatch({ type: 'START_GAME' })}
+          onStartGame={() => {
+            engine.startNewGame();
+            engine.startLoop();
+            dispatch({ type: 'START_GAME' });
+          }}
         />
       )}
 
@@ -117,10 +133,16 @@ export function App(): JSX.Element {
           <GameScreen
             score={uiState.score}
             mute={preferences.mute}
-            onGameOver={() => dispatch({ type: 'GAME_OVER' })}
+            paused={uiState.screen === 'paused'}
+            onGameOver={() => engine.triggerGameOver()}
           />
           {uiState.screen === 'paused' && (
-            <PauseOverlay onResume={() => dispatch({ type: 'TOGGLE_PAUSE' })} />
+            <PauseOverlay
+              onResume={() => {
+                engine.togglePause();
+                dispatch({ type: 'TOGGLE_PAUSE' });
+              }}
+            />
           )}
         </>
       )}
@@ -130,7 +152,11 @@ export function App(): JSX.Element {
           finalScore={uiState.finalScore}
           displayedPseudo={displayedPseudo}
           scoreSave={uiState.scoreSave}
-          onReplay={() => dispatch({ type: 'START_GAME' })}
+          onReplay={() => {
+            engine.startNewGame();
+            engine.startLoop();
+            dispatch({ type: 'START_GAME' });
+          }}
           onSaveScore={() => void onSaveScore(uiState.finalScore)}
           onOpenLeaderboard={() => dispatch({ type: 'OPEN_LEADERBOARD' })}
           onGoHome={() => dispatch({ type: 'GO_HOME' })}

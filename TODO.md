@@ -142,7 +142,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Poser le socle WebGL 3D ; Livrable: module `render/` (init/resize/cleanup + rAF) ; Acceptation: scène 3D stable sans dépendre des re-renders React ; Deps: id018 ; Docs: /docs/05-decisions-structurantes.md → “D-14”, /docs/07-guidelines-developpement.md → “Boucle de jeu et React”.
 
-- [ ] **id024** **(P0)** _(M)_ Implémenter `GameEngine` (running/paused/gameover)
+- [x] **id024** **(P0)** _(M)_ Implémenter `GameEngine` (running/paused/gameover)
 
   - But: Séparer simulation vs UI ; Livrable: module `game/` (update dt + state machine) ; Acceptation: P fige/reprend, game over déclenche l’écran fin ; Deps: id023 ; Docs: /docs/06-architecture-technique.md → “GameEngine”, /docs/04-specification-fonctionnelle.md → “Pause / Fin de partie”.
 
