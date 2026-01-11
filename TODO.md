@@ -133,7 +133,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Relier UI↔API ; Livrable: module `services/` (fetch, gestion erreurs) ; Acceptation: erreur d’enregistrement non bloquante + message clair ; Deps: id020, id013, id014 ; Docs: /docs/06-architecture-technique.md → “services/ + flux”, /docs/08-qualite-tests-et-ux.md → “Erreurs réseau”.
 
-- [ ] **id022** **(P0)** _(S)_ Afficher les contrôles clavier (flèches/WASD, espace, P, M)
+- [x] **id022** **(P0)** _(S)_ Afficher les contrôles clavier (flèches/WASD, espace, P, M)
   - But: Éviter l’UX “devinette” ; Livrable: panneau contrôles (Accueil et/ou overlay) ; Acceptation: touches visibles dès l’accueil ; Deps: id020 ; Docs: /docs/08-qualite-tests-et-ux.md → “UX : principes”, /docs/04-specification-fonctionnelle.md → “Contrôles”.
 
 ### Épique E — Boucle de jeu (Three.js) : engine, input, rendu

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { Difficulty, Preferences, Sensitivity } from '../storage/preferences';
 import { normalizePseudo, sensitivityMultiplier } from '../storage/preferences';
+import { ControlsPanel } from './controls-panel';
 import { uiButtonStyle, uiCardStyle, uiColors, uiInputStyle } from './ui-kit';
 
 const difficultyOptions: Array<{ value: Difficulty; label: string }> = [
@@ -148,15 +149,9 @@ export function HomeScreen(props: {
         </div>
       </section>
 
-      <section style={{ ...uiCardStyle, marginTop: 14 }}>
-        <h2 style={{ margin: 0, fontSize: 18 }}>Contrôles (desktop)</h2>
-        <ul style={{ margin: '10px 0 0', color: uiColors.muted }}>
-          <li>Déplacement : flèches ou WASD</li>
-          <li>Tir : espace</li>
-          <li>Pause : P</li>
-          <li>Mute : M</li>
-        </ul>
-      </section>
+      <div style={{ marginTop: 14 }}>
+        <ControlsPanel />
+      </div>
     </main>
   );
 }
