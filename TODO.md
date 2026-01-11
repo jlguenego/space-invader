@@ -92,11 +92,11 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Respecter le “jour” Paris ; Livrable: `timeService` UTC→`dayKeyParis` ; Acceptation: tests couvrent instants UTC + DST ; Deps: id010 ; Docs: /docs/06-architecture-technique.md → “Gestion du fuseau Europe/Paris”, /docs/08-qualite-tests-et-ux.md → “Tests : dayKeyParis”.
 
-- [ ] **id012** **(P0)** _(M)_ Implémenter le repository scores (mutex + écriture atomique)
+- [x] **id012** **(P0)** _(M)_ Implémenter le repository scores (mutex + écriture atomique)
 
   - But: Persister sans corruption en mono-instance ; Livrable: `scoreRepository` (read/write JSON, `.tmp` + rename, mutex) ; Acceptation: tests valident JSON final non corrompu + sérialisation ; Deps: id010 ; Docs: /docs/06-architecture-technique.md → “Stratégie d’écriture”, /docs/07-guidelines-developpement.md → “Persistance JSON”.
 
-- [ ] **id013** **(P0)** _(M)_ Implémenter `POST /api/scores` (validation + normalisation pseudo)
+- [x] **id013** **(P0)** _(M)_ Implémenter `POST /api/scores` (validation + normalisation pseudo)
 
   - But: Enregistrer un score conforme ; Livrable: endpoint + validation (`score` >= 0) + normalisation `pseudo` (trim, max) + `createdAt` UTC + `dayKeyParis` ; Acceptation: 201/400/500 conformes + pseudo vide→“Anonyme” ; Deps: id011, id012 ; Docs: /docs/06-architecture-technique.md → “POST /api/scores”, /docs/04-specification-fonctionnelle.md → “Enregistrement d’un score”, /docs/07-guidelines-developpement.md → “Validation stricte”.
 
