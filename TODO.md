@@ -84,7 +84,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique C — Back-end (Express) : API + persistance JSON
 
-- [ ] **id010** **(P0)** _(M)_ Initialiser l’app Express (socle) et la base `/api`
+- [x] **id010** **(P0)** _(M)_ Initialiser l’app Express (socle) et la base `/api`
 
   - But: Fournir le socle serveur ; Livrable: app Express sous Bun + routes `/api` + erreurs JSON + mode prod sans stacktrace ; Acceptation: démarrage local OK et format d’erreur stable ; Deps: id006, id007 ; Docs: /docs/06-architecture-technique.md → “Back-end (Express)”, /docs/07-guidelines-developpement.md → “Gestion d’erreurs”, /docs/05-decisions-structurantes.md → “D-03”, “D-19”.
 
