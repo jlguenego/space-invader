@@ -26,6 +26,11 @@ Définir des conventions et bonnes pratiques de dev pour implémenter le MVP de 
   - `bun create vite@latest`
   - `bun install <package>`
 
+### 1.2 Dépendances TypeScript (`@types/*`)
+
+- Installer les packages `@types/*` en **devDependencies** dans le **workspace qui consomme** la librairie (Option A).
+  - Exemple : si `luxon` est utilisé côté serveur, alors `@types/luxon` est déclaré dans `server/package.json` (devDependencies).
+
 ## 2. Organisation des dossiers (cible)
 
 Proposition (indicative) :

@@ -88,6 +88,8 @@ Langage : le code du front est écrit en **TypeScript** (`.tsx`).
 - Persistance en fichiers JSON avec écriture atomique et sérialisation des écritures (mono-instance).
 - Calcul du “jour” en Europe/Paris côté serveur (indépendant du fuseau système).
 
+Note TypeScript : les dépendances de types (`@types/*`) sont déclarées en **devDependencies** du workspace concerné (ex: `server/`).
+
 Langage/exécution : le code du serveur est écrit en **TypeScript** (`.ts`) et exécuté via **Bun** (pas de compilation TS→JS requise pour exécuter).
 
 ### 3.2 Structure proposée
@@ -154,6 +156,8 @@ Notes :
 
 - Utiliser une lib de timezone robuste (ex: Luxon) pour produire `dayKeyParis`.
 - Ne pas dépendre du TZ système : utiliser explicitement `Europe/Paris`.
+
+Implémentation côté repo : `luxon` (runtime) + `@types/luxon` (dev) sont installés dans le workspace `server/`.
 
 ## 6. Contrat API (v0)
 

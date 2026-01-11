@@ -158,6 +158,12 @@ Consigner les décisions qui structurent durablement le produit (fonctionnel + t
 - Note : côté serveur, **Bun exécute le TypeScript** (pas besoin de compiler TS→JS pour exécuter) ; côté front, le build reste assuré par Vite.
 - Source : décision projet (todo `id007`) + cadre `docs/07-guidelines-developpement.md` et `docs/09-cicd-et-deploiement.md`.
 
+### D-21 — Dépendances TypeScript : `@types/*` au niveau du workspace consommateur
+
+- Décision : les packages de types TypeScript (`@types/*`) sont déclarés en **devDependencies** dans le **workspace qui consomme la lib** (ex: `server/`), plutôt qu’au root du monorepo.
+- Motivation : garder les dépendances proches de leur usage (meilleure lisibilité, moins de couplage entre workspaces).
+- Exemple : `luxon` est une dépendance runtime du serveur, et ses types `@types/luxon` sont une devDependency du workspace serveur.
+
 ## Décisions à prendre (non actées)
 
 Les choix ci-dessous structurent l’architecture et devront être tranchés avant d’écrire `docs/06-architecture-technique.md`.
