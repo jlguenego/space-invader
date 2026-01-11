@@ -70,11 +70,12 @@ Consigner les décisions qui structurent durablement le produit (fonctionnel + t
 
 - Décision : réglages de difficulté et de sensibilité.
 - Difficulté : facile / normal / difficile (impact global sur le jeu).
+- Paramètres de difficulté (MVP) : voir `clarifications/10-parametres-difficulte.md`.
 - Sensibilité : vitesse de déplacement avec presets :
   - faible = 0.8x
   - moyen = 1.0x
   - fort = 1.2x
-- Source : `clarifications/02-utilisateurs-cibles-plateformes-et-controles.md`, `clarifications/03-questions-ouvertes-parcours-et-ux.md`, `clarifications/04-details-score-et-sensibilite.md`.
+- Source : `clarifications/02-utilisateurs-cibles-plateformes-et-controles.md`, `clarifications/03-questions-ouvertes-parcours-et-ux.md`, `clarifications/04-details-score-et-sensibilite.md`, `clarifications/10-parametres-difficulte.md`.
 
 ### D-10 — Classement : global top 10 du jour (Europe/Paris)
 

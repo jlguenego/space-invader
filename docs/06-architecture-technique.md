@@ -10,6 +10,7 @@ Décrire l’architecture cible (composants, modules, flux, données, API) pour 
 - `docs/04-specification-fonctionnelle.md`
 - `docs/05-decisions-structurantes.md`
 - `clarifications/05-choix-techniques-stack-et-stockage.md`
+- `clarifications/10-parametres-difficulte.md`
 
 ## 1. Vue d’ensemble
 
@@ -51,7 +52,7 @@ Décrire l’architecture cible (composants, modules, flux, données, API) pour 
 - `game/` : logique du jeu
   - `GameEngine` : boucle, timing, state machine (running/paused/gameover)
   - `InputManager` : clavier (flèches/WASD, espace, P, M)
-  - `Rules` : difficulté, sensibilité, bonus, multiplicateurs
+  - `Rules` : difficulté, sensibilité, bonus, multiplicateurs (paramètres difficulté MVP : `clarifications/10-parametres-difficulte.md`)
   - `Scoring` : calcul score final
 - `render/` : rendu Three.js
   - création scène/caméra/lumières, entités visuelles, effets

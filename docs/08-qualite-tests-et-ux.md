@@ -9,6 +9,7 @@ Définir le niveau de qualité attendu pour le MVP, les tests minimums (priorit�
 - `docs/04-specification-fonctionnelle.md`
 - `docs/06-architecture-technique.md`
 - `docs/07-guidelines-developpement.md`
+- `clarifications/10-parametres-difficulte.md`
 
 ## 1. Qualité (définition MVP)
 
@@ -72,6 +73,7 @@ Le MVP est considéré “qualitatif” si :
 
 - Input mapping : WASD + flèches, espace, P, M.
 - Mute : persistance + effet immédiat.
+- Règles difficulté : vérifier que les 3 presets existent et que les paramètres appliqués sont conformes à `clarifications/10-parametres-difficulte.md`.
 - Scoring : tests sur fonctions pures (bonus/multiplicateurs).
 
 ## 6. Checklists de test manuel (avant démo)

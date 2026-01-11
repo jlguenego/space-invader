@@ -15,6 +15,7 @@ Décrire précisément les fonctionnalités attendues (comportements, règles, d
 - `clarifications/02-utilisateurs-cibles-plateformes-et-controles.md`
 - `clarifications/03-questions-ouvertes-parcours-et-ux.md`
 - `clarifications/04-details-score-et-sensibilite.md`
+- `clarifications/10-parametres-difficulte.md`
 
 ## 1. Périmètre fonctionnel (MVP)
 
@@ -78,6 +79,7 @@ Chaque score enregistré doit permettre d’afficher au minimum :
 
 - Valeurs : facile / normal / difficile.
 - Effets : impact global sur le jeu (exemples cités : vitesse ennemis, fréquence tirs, nombre de vies, etc.).
+- Paramètres chiffrés (MVP) : voir `clarifications/10-parametres-difficulte.md`.
 
 ### 5.2 Sensibilité
 

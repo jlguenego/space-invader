@@ -12,6 +12,7 @@ Ce document prépare les user stories, les flux et la spécification fonctionnel
 - `docs/01-utilisateurs-personas.md`
 - `clarifications/01-classement-identite-et-anti-triche.md`
 - `clarifications/02-utilisateurs-cibles-plateformes-et-controles.md`
+- `clarifications/10-parametres-difficulte.md`
 
 ## Cadre d’expérience (acté)
 
@@ -31,6 +32,7 @@ Ce document prépare les user stories, les flux et la spécification fonctionnel
 - Réglages :
   - Sensibilité = vitesse de déplacement (presets : faible / moyen / fort).
   - Difficulté : facile / normal / difficile (impact global : vitesse ennemis, fréquence tirs, nombre de vies, etc.).
+    Paramètres chiffrés (MVP) : voir `clarifications/10-parametres-difficulte.md`.
 - Score : basé sur les ennemis tués, avec bonus et multiplicateurs (pas de points “vague terminée”).
 
 ## Principes UX (directement liés aux contraintes)

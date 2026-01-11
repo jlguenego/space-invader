@@ -49,7 +49,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
   - **Dépendances :** Aucune.
   - **Docs sources :** [/docs/04-specification-fonctionnelle.md](docs/04-specification-fonctionnelle.md) → “Multiplicateurs (définition)” ; [/docs/03-user-stories-et-flux.md](docs/03-user-stories-et-flux.md) → “Points à préciser plus tard”.
 
-- [ ] **id004** **(P1)** _(S)_ Clarifier les paramètres des difficultés (facile/normal/difficile)
+- [x] **id004** **(P1)** _(S)_ Clarifier les paramètres des difficultés (facile/normal/difficile)
 
   - **But :** traduire “impact global” en paramètres de jeu concrets.
   - **Livrable :** tableau des paramètres par difficulté (ex: vitesse ennemis, cadence tirs, vies…).

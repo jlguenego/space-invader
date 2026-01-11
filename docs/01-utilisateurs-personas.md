@@ -10,6 +10,8 @@ Ce document sert de base pour les parcours, user stories et priorisation.
 - `input/brief.md`
 - `clarifications/01-classement-identite-et-anti-triche.md`
 - `clarifications/02-utilisateurs-cibles-plateformes-et-controles.md` (CLOTUREE)
+- `clarifications/04-details-score-et-sensibilite.md`
+- `clarifications/10-parametres-difficulte.md`
 
 ## Ce qui est acté (sans hypothèses)
 
@@ -58,4 +60,6 @@ Les personas ci-dessous sont volontairement génériques : ils ne rajoutent pas 
 Les points suivants ne sont pas définis dans les entrées actuelles et pourront impacter les parcours et stories :
 
 - Mapping exact des touches clavier.
-- Contenu exact des réglages (sensibilité : quoi ? difficulté : quels niveaux ?).
+- Réglages :
+  - Sensibilité (ratios) : spécifié dans `clarifications/04-details-score-et-sensibilite.md`.
+  - Difficulté (paramètres chiffrés MVP) : spécifié dans `clarifications/10-parametres-difficulte.md`.

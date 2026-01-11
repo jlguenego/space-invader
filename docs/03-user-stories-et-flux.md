@@ -15,6 +15,7 @@ Ce document sert d’entrée à la spécification fonctionnelle.
 - `clarifications/02-utilisateurs-cibles-plateformes-et-controles.md`
 - `clarifications/03-questions-ouvertes-parcours-et-ux.md`
 - `clarifications/04-details-score-et-sensibilite.md`
+- `clarifications/10-parametres-difficulte.md`
 
 ## Rappel des décisions impactant les stories (acté)
 
@@ -23,6 +24,7 @@ Ce document sert d’entrée à la spécification fonctionnelle.
 - Rendu WebGL 3D + qualité visuelle.
 - Sons + option mute.
 - Réglages : difficulté (facile/normal/difficile) ; sensibilité = vitesse de déplacement (0.8x / 1.0x / 1.2x).
+  Paramètres de difficulté (MVP) : voir `clarifications/10-parametres-difficulte.md`.
 - Classement : global top 10 du jour, basé sur Europe/Paris.
 - Identité : pseudo libre mémorisé côté navigateur, modifiable ; pseudo optionnel (anonyme possible).
 - Score : basé sur ennemis tués + bonus et multiplicateurs ; pas de points “vague terminée”.
@@ -107,7 +109,7 @@ Ce document sert d’entrée à la spécification fonctionnelle.
 - En tant que joueur, je veux choisir une difficulté (facile/normal/difficile), afin d’adapter le challenge.
 - Critères d’acceptation :
   - Les 3 niveaux existent et sont sélectionnables.
-  - Le choix a un impact global sur le jeu (vitesse ennemis, fréquence tirs, vies, etc.).
+  - Le choix a un impact global sur le jeu, conforme aux paramètres actés (voir `clarifications/10-parametres-difficulte.md`).
 
 **US-10 — Choisir la sensibilité**
 
@@ -204,3 +206,4 @@ Ce document sert d’entrée à la spécification fonctionnelle.
 
 - Détail des valeurs exactes par bonus (répartition des 1..1000 par type/condition) : spécifié (MVP) dans `clarifications/08-bareme-bonus.md`.
 - Multiplicateurs : types d’ennemis déclencheurs et durées associées : spécifié (MVP) dans `clarifications/09-multiplicateurs-declencheurs-durees.md`.
+- Paramètres chiffrés de difficulté : spécifié (MVP) dans `clarifications/10-parametres-difficulte.md`.
