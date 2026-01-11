@@ -66,7 +66,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique B — Structure repo & outillage (dans [/project](project/))
 
-- [ ] **id006** **(P0)** _(S)_ Créer le répertoire [/project](project/) et y poser la structure monorepo
+- [x] **id006** **(P0)** _(S)_ Créer le répertoire [/project](project/) et y poser la structure monorepo
 
   - **But :** respecter la contrainte de repo (code/config/docs générées sous [/project](project/)).
   - **Livrable :** arborescence [/project/client](project/client/) + [/project/server](project/server/) + fichiers racine (README, scripts).
