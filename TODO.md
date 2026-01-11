@@ -117,7 +117,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique D — Front-end (React) : UI shell, stockage local, intégration API
 
-- [ ] **id018** **(P0)** _(M)_ Initialiser l’app React (Vite) dans [/project/client](project/client/)
+- [x] **id018** **(P0)** _(M)_ Initialiser l’app React (Vite) dans [/project/client](project/client/)
 
   - But: Poser le socle UI ; Livrable: app React outillée Vite (deps/scripts Bun) + dev/build ; Acceptation: dev Vite OK et build statique exploitable par Express ; Deps: id006, id007 ; Docs: /docs/05-decisions-structurantes.md → “D-02”, “D-19”, /docs/06-architecture-technique.md → “Front-end (React)”, /docs/09-cicd-et-deploiement.md → “Artefacts”.
 

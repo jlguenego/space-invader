@@ -8,6 +8,18 @@ import { createApp } from '../app';
 import { dayKeyParisFromDate } from '../domain/time-service';
 import { createScoreRepository, type ScoreEntry } from '../storage/score-repository';
 
+type LeaderboardEntry = {
+  rank: number;
+  pseudo: string;
+  score: number;
+};
+
+type LeaderboardDayResponse = {
+  timezone: string;
+  dayKeyParis: string;
+  entries: LeaderboardEntry[];
+};
+
 async function makeTempDir(): Promise<string> {
   return await fs.mkdtemp(path.join(os.tmpdir(), 'space-invaders-api-leaderboard-'));
 }
@@ -52,7 +64,7 @@ describe('GET /api/leaderboard/day', () => {
       const res = await fetch(`${srv.baseUrl}/api/leaderboard/day`);
       expect(res.status).toBe(200);
 
-      const body = await res.json();
+      const body: LeaderboardDayResponse = await res.json();
       expect(body.timezone).toBe('Europe/Paris');
       expect(typeof body.dayKeyParis).toBe('string');
       expect(body.entries).toEqual([]);
@@ -108,24 +120,22 @@ describe('GET /api/leaderboard/day', () => {
       const res = await fetch(`${srv.baseUrl}/api/leaderboard/day`);
       expect(res.status).toBe(200);
 
-      const body = await res.json();
+      const body: LeaderboardDayResponse = await res.json();
       expect(body).toMatchObject({ timezone: 'Europe/Paris', dayKeyParis: todayParis });
 
       expect(Array.isArray(body.entries)).toBe(true);
       expect(body.entries).toHaveLength(10);
 
       // Sorted desc by score.
-      const returnedScores = body.entries.map((e: any) => e.score);
+      const returnedScores = body.entries.map((e) => e.score);
       expect(returnedScores).toEqual([...returnedScores].sort((a: number, b: number) => b - a));
 
       // Ranks are 1..n in order.
-      const returnedRanks = body.entries.map((e: any) => e.rank);
+      const returnedRanks = body.entries.map((e) => e.rank);
       expect(returnedRanks).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
       // Tie-breaker is deterministic for same score (50): TieA should appear before TieB.
-      const pseudosFor50 = body.entries
-        .filter((e: any) => e.score === 50)
-        .map((e: any) => e.pseudo);
+      const pseudosFor50 = body.entries.filter((e) => e.score === 50).map((e) => e.pseudo);
       expect(pseudosFor50).toEqual(['TieA', 'TieB']);
     } finally {
       process.env.DATA_DIR = prevDataDir;

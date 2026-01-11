@@ -25,6 +25,19 @@ function shouldIncludeStackInLogs(): boolean {
   return !isProduction() && process.env.LOG_STACK !== '0';
 }
 
+function getErrorProps(err: unknown): { type?: string; status?: number; message?: string } {
+  if (!err || typeof err !== 'object') {
+    return {};
+  }
+
+  const record = err as Record<string, unknown>;
+  const type = typeof record.type === 'string' ? record.type : undefined;
+  const status = typeof record.status === 'number' ? record.status : undefined;
+  const message = typeof record.message === 'string' ? record.message : undefined;
+
+  return { type, status, message };
+}
+
 function createErrorMiddleware(logger: Logger): ErrorRequestHandler {
   const includeStack = shouldIncludeStackInLogs();
 
@@ -47,10 +60,10 @@ function createErrorMiddleware(logger: Logger): ErrorRequestHandler {
       return;
     }
 
-    const anyErr = err as any;
+    const { type: errType, status: errStatus, message: errMessage } = getErrorProps(err);
 
     // express.json() body parsing errors
-    if (anyErr?.type === 'entity.too.large' || anyErr?.status === 413) {
+    if (errType === 'entity.too.large' || errStatus === 413) {
       logger.warn('payload too large', {
         event: 'http.payload_too_large',
         method: req.method,
@@ -64,10 +77,7 @@ function createErrorMiddleware(logger: Logger): ErrorRequestHandler {
       return;
     }
 
-    if (
-      anyErr instanceof SyntaxError &&
-      typeof (anyErr as { status?: unknown }).status === 'number'
-    ) {
+    if (err instanceof SyntaxError && typeof errStatus === 'number') {
       logger.warn('invalid JSON body', {
         event: 'http.invalid_json',
         method: req.method,
@@ -82,7 +92,7 @@ function createErrorMiddleware(logger: Logger): ErrorRequestHandler {
     }
 
     const code: ApiErrorCode = 'INTERNAL_ERROR';
-    const message = prod ? 'Internal error' : (anyErr?.message ?? 'Internal error');
+    const message = prod ? 'Internal error' : (errMessage ?? 'Internal error');
 
     logger.error('unhandled server error', {
       event: 'http.internal_error',
