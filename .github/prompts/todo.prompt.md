@@ -51,6 +51,9 @@ Le prompt généré doit **obligatoirement** contenir ces sections :
 - Consulte `AGENTS.md` pour comprendre l'architecture du projet (si présent)
 - Respecte les conventions du projet (voir `specifications/` si présent)
 - Base-toi sur `docs/` et `clarifications/` pour toute décision/règle : ne comble pas les trous “au hasard”.
+- **Autonomie par défaut :** le prompt doit demander à l’IA exécutant la tâche de la réaliser **de bout en bout “tout d’un coup”** (implémentation + tests + validations + mise à jour éventuelle de `TODO.md`), sans demander de confirmations intermédiaires.
+  - L’IA doit **prendre des décisions raisonnables** et cohérentes avec les docs quand plusieurs options équivalentes existent (et noter brièvement la justification), plutôt que de solliciter l’utilisateur.
+  - L’IA ne doit solliciter l’utilisateur **que si** elle est **réellement bloquée** (cf. section Clarifications / gate obligatoire).
 - ✅ **Clôture (dans le prompt généré)** : demander à l’IA exécutant la tâche de **cocher la case** `- [ ]` → `- [x]` dans `TODO.md` **uniquement si** :
 
   - tous les livrables sont produits,
@@ -58,6 +61,8 @@ Le prompt généré doit **obligatoirement** contenir ces sections :
   - les éventuels tests/commandes demandés passent.
 
   Le générateur de prompt (ce document) **ne coche pas** le `TODO.md` au moment de la génération ; il impose que la case soit cochée **à la fin** de l’exécution réelle de la tâche.
+
+- Ecriture inclusive interdite.
 
 ## Clarifications (gate obligatoire)
 
@@ -70,6 +75,8 @@ Si la tâche sélectionnée ne peut pas être réalisée de façon non-arbitrair
 
 2. Le prompt doit **s’arrêter** après création de ce fichier et demander explicitement à l’utilisateur de répondre dans le document.
 3. Le prompt ne doit reprendre l’exécution de la todo qu’une fois les réponses apportées (ou la décision actée) dans ce fichier.
+
+> Important (mode autonome) : en dehors de ce **gate obligatoire**, le prompt doit interdire les pauses “pour validation” et les allers-retours inutiles. L’IA exécute la tâche, puis rapporte le résultat.
 
 Contenu attendu du fichier de clarifications (template à inclure dans le prompt) :
 
