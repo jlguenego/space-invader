@@ -79,7 +79,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Rendre le dev reproductible ; Livrable: scripts Bun (client+server) + config format (ex: Prettier) + intégration verrouillage Bun 1.3.5 ; Acceptation: `dev` lance client+server et CI exécute lint/format+tests ; Deps: id006, id007 ; Docs: /docs/07-guidelines-developpement.md → “Outillage & commandes”, “Style & format”, /docs/09-cicd-et-deploiement.md → “Pipeline CI (proposition)”, /docs/05-decisions-structurantes.md → “D-19”.
 
-- [ ] **id009** **(P0)** _(S)_ Configurer l’ignorance Git et la gestion de `server/data/`
+- [x] **id009** **(P0)** _(S)_ Configurer l’ignorance Git et la gestion de `server/data/`
   - But: Éviter de versionner des données runtime ; Livrable: `.gitignore` + fichier d’exemple (si retenu) ; Acceptation: données persistées locales/prod non committées ; Deps: id006 ; Docs: /docs/07-guidelines-developpement.md → “Git & hygiène de repo”, /docs/09-cicd-et-deploiement.md → “Persistance fichiers (indispensable)”.
 
 ### Épique C — Back-end (Express) : API + persistance JSON

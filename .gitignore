@@ -27,3 +27,4 @@ Thumbs.db
 # Runtime data (keep directory via .gitkeep)
 project/server/data/*
 !project/server/data/.gitkeep
+!project/server/data/*.example.json
