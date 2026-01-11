@@ -18,11 +18,13 @@ Décrire l’architecture cible (composants, modules, flux, données, API) pour 
 ### 1.1 Composants
 
 - Navigateur (front React)
+  - Langage : TypeScript (`.tsx`)
   - Outillage : Vite (dev server + build)
   - Rendu 3D : Three.js (WebGL)
   - Audio : Howler.js (assets `mp3` + `ogg`)
   - Stockage local : pseudo + réglages (localStorage)
 - Serveur (back Express)
+  - Langage : TypeScript (`.ts`)
   - Runtime : Bun (Bun 1.3.5 verrouillée)
   - API REST : enregistrement score + lecture top10 du jour
   - Persistance : fichiers JSON, mono-instance, historique complet
@@ -43,6 +45,8 @@ Décrire l’architecture cible (composants, modules, flux, données, API) pour 
 ## 2. Front-end (React)
 
 Outillage : le front est outillé avec **Vite** (projet React basé sur Vite). Dépendances et scripts sont gérés via **Bun 1.3.5 (verrouillée)**. En production, le serveur tourne sur **Bun (runtime)** (cf. `clarifications/12-vite.md`).
+
+Langage : le code du front est écrit en **TypeScript** (`.tsx`).
 
 ### 2.1 Principes
 
@@ -83,6 +87,8 @@ Outillage : le front est outillé avec **Vite** (projet React basé sur Vite). D
 - API minimaliste (2 endpoints) et robuste : validation d’entrée + limites (taille payload, longueur pseudo).
 - Persistance en fichiers JSON avec écriture atomique et sérialisation des écritures (mono-instance).
 - Calcul du “jour” en Europe/Paris côté serveur (indépendant du fuseau système).
+
+Langage/exécution : le code du serveur est écrit en **TypeScript** (`.ts`) et exécuté via **Bun** (pas de compilation TS→JS requise pour exécuter).
 
 ### 3.2 Structure proposée
 
@@ -213,6 +219,8 @@ Erreurs :
 - Limites : taille payload faible, réponses compactes.
 - CORS : nécessaire uniquement si front/back servis sur origines différentes en dev.
 - Anti-triche : assumée simple ; pas de signature/validation serveur.
+
+Note CI/outillage : le pipeline doit inclure un step “lint + typecheck” (ex: `tsc --noEmit`) et les configs TypeScript nécessaires ; ces éléments sont outillés dans le monorepo (cf. `docs/09-cicd-et-deploiement.md`).
 
 ## 9. Risques & mitigations
 

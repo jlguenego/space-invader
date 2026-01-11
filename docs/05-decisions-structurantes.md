@@ -151,6 +151,13 @@ Consigner les décisions qui structurent durablement le produit (fonctionnel + t
 - Convention : lors de la construction/initialisation du projet, privilégier les commandes d’installation/initialisation (ex: `bun create …`, `bun install …`).
 - Source : `clarifications/12-vite.md`.
 
+### D-20 — Langage : TypeScript (front + back)
+
+- Décision : utiliser **TypeScript** pour le front et le back (extensions `.tsx/.ts`).
+- Motivation : cohérence de codebase et réduction des erreurs ; permet un step CI “lint + typecheck” cohérent avec `docs/09-cicd-et-deploiement.md`.
+- Note : côté serveur, **Bun exécute le TypeScript** (pas besoin de compiler TS→JS pour exécuter) ; côté front, le build reste assuré par Vite.
+- Source : décision projet (todo `id007`) + cadre `docs/07-guidelines-developpement.md` et `docs/09-cicd-et-deploiement.md`.
+
 ## Décisions à prendre (non actées)
 
 Les choix ci-dessous structurent l’architecture et devront être tranchés avant d’écrire `docs/06-architecture-technique.md`.

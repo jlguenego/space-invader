@@ -9,7 +9,7 @@ Tu es un **lead engineer** et **rédacteur technique**. Ta mission est de produi
 - Le projet (code, configuration, documentation générée) doit vivre dans le répertoire `/project`.
 - Si `/project` existe déjà, analyse son contenu (structure, features déjà implémentées, tests/CI, documentation, scripts) afin d’identifier précisément ce qu’il reste à faire.
 - La TODO doit refléter l’état réel du dépôt :
-  - Marque comme **fait** (ou supprime) ce qui est déjà implémenté.
+  - Marque comme **fait** ce qui est déjà implémenté (si `/TODO.md` existe déjà, ne supprime pas des tâches : utilise “Obsolète (remplacée par …)”).
   - Ajoute des tâches de complétion pour les éléments partiels.
   - Ajoute des tâches de correction si tu détectes des incohérences bloquantes par rapport à `/docs`.
   - N’invente pas : si un point n’est pas vérifiable, crée une tâche “Vérifier …”.
@@ -41,16 +41,38 @@ Générer une TODO list complète couvrant :
   - Estimation relative (S/M/L) si faisable à partir des docs
 - Regrouper par **épiques**/thèmes (Architecture, Backend, Frontend, Data, Sécurité, DevOps, Docs, QA…).
 
+## Format des tâches (court mais précis)
+
+- Objectif : un format **compact** (éviter les listes longues), tout en restant actionnable et vérifiable.
+- Chaque tâche doit tenir sur **2 lignes maximum** (retour à la ligne autorisé, mais pas de sous-liste multi-puces).
+- Les champs doivent rester explicites, avec libellés stables : `But:`, `Livrable:`, `Acceptation:`, `Deps:`, `Docs:`.
+
 ## Règles de mise à jour (si `/TODO.md` existe)
 
-- Si tu modifies `/TODO.md`, **ne supprime pas** et **ne réinitialise pas** les tâches déjà cochées (`- [x]`).
-- Conserve leurs identifiants `idNNN` et leurs libellés ; tu peux ajouter des précisions si nécessaire sans changer le sens.
-- Pour les nouvelles tâches, continue la séquence en repartant du **plus grand `idNNN` existant + 1**.
-- Si une tâche existante est devenue obsolète, ne l’efface pas : marque-la comme faite et indique brièvement “Obsolète (remplacée par …)” dans son texte.
+- Objectif : **réconcilier** la TODO existante avec l’état actuel de la documentation dans `/docs` (et, si pertinent, `/clarifications`).
+- Lis d’abord `/TODO.md` puis relis `/docs` : la mise à jour doit refléter le **contexte documentaire le plus récent**.
+- Tâches **déjà cochées** (`- [x]`) : **intouchables**.
+  - Ne modifie ni leur texte, ni leur titre, ni leur structure, ni leurs identifiants `idNNN`, ni leur ordre.
+  - Ne les supprime pas, ne les déplace pas, ne les reformule pas, ne les “corrige” pas.
+- Tâches **non cochées** (`- [ ]`) : à **adapter** au contexte documentaire.
+  - Ajuste si nécessaire : titre, priorité (P0/P1/P2), estimation (S/M/L), livrable, acceptation, dépendances, et surtout **Docs sources**.
+  - Si une tâche non cochée n’est plus pertinente au regard des docs : ne la supprime pas ; **marque-la comme faite** et ajoute “Obsolète (remplacée par …)” dans son texte.
+  - Si une tâche doit être **scindée** : conserve l’`idNNN` sur la partie la plus proche du sens initial ; crée les nouvelles tâches avec de nouveaux `idNNN`.
+  - Si plusieurs tâches doivent être **fusionnées** : conserve l’`idNNN` de la tâche principale ; marque les autres comme “Obsolète (remplacée par …)” (sans suppression).
+- Identifiants :
+  - Ne réutilise jamais un `idNNN` existant.
+  - Pour toute nouvelle tâche, continue la séquence à partir du **plus grand `idNNN` présent dans `/TODO.md` + 1** (en incluant les tâches cochées).
 
 ## Format de sortie (STRICT)
 
-Écris le résultat dans `/TODO.md` au format Markdown, avec la structure suivante :
+Tu dois **modifier le fichier** `/TODO.md` dans le dépôt (dans VS Code).
+
+Contrainte de confidentialité/sortie :
+
+- **Ne colle jamais** dans le chat le contenu de `/TODO.md` (même partiel), ni d’extraits longs, ni de sections entières.
+- Dans le chat, réponds uniquement avec un **récapitulatif concis** des changements effectués (3–8 puces max) : épics ajoutées/retouchées, nombre de tâches créées, plus grand `idNNN` atteint, et éventuels points bloquants.
+
+Le fichier `/TODO.md` doit être au format Markdown et respecter la structure suivante :
 
 1. Titre + courte intro (2–4 lignes)
 2. “Hypothèses & zones à clarifier” (liste)
@@ -60,18 +82,15 @@ Générer une TODO list complète couvrant :
    - Chaque épique contient des tâches numérotées
    - Chaque tâche respecte ce gabarit :
 
-     - [ ] **idNNN** **(P0|P1|P2)** _(S|M|L)_ Titre de la tâche
-       - **But :** …
-       - **Livrable :** …
-       - **Acceptation :** …
-       - **Dépendances :** … (ou “Aucune”)
-       - **Docs sources :** liste de fichiers dans `/docs` + section(s) (ex: `/docs/04-specification-fonctionnelle.md` → “Authentification”)
+     - [ ] **idNNN** **(P0|P1|P2)** _(S|M|L)_ Titre
+       - But: … ; Livrable: … ; Acceptation: … ; Deps: … ; Docs: /docs/xx.md → “Section”, …
 
 ## Interdits
 
 - Ne pas coder, ne pas proposer de snippets.
 - Ne pas citer de sources externes.
 - Ne pas inventer de fonctionnalités non présentes dans les docs.
+- Ne jamais afficher dans le chat le contenu de `/TODO.md` (intégral ou partiel).
 
 ## Contrôle qualité final
 
@@ -81,4 +100,4 @@ Avant de finaliser, vérifie :
 - Dépendances cohérentes et ordre réalisable
 - Critères d’acceptation testables
 
-Produis uniquement le contenu de `/TODO.md`.
+Ne produis pas le contenu de `/TODO.md` dans la conversation : assure-toi que le fichier est mis à jour sur disque, puis donne uniquement le récapitulatif demandé.
