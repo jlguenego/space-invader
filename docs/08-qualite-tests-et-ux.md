@@ -91,4 +91,5 @@ Le MVP est considéré “qualitatif” si :
 - Fonctionnel : AC respectés (docs 03/04).
 - Tests : au moins 1 test unitaire quand pertinent (ou justification).
 - UX : message clair en cas d’erreur.
+- Performance (si feature liée au rendu) : respecter la cible fps et les budgets de rendu définis dans `clarifications/11-budget-perf-fps.md`.
 - Non-régression : pas de crash sur pause/reprise.

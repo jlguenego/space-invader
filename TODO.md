@@ -57,7 +57,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
   - **Dépendances :** Aucune.
   - **Docs sources :** [/docs/04-specification-fonctionnelle.md](docs/04-specification-fonctionnelle.md) → “Difficulté” ; [/docs/02-parcours-et-experience.md](docs/02-parcours-et-experience.md) → “Cadre d’expérience (acté)”.
 
-- [ ] **id005** **(P2)** _(S)_ Vérifier/valider un budget perf cible (fps) et contraintes de rendu
+- [x] **id005** **(P2)** _(S)_ Vérifier/valider un budget perf cible (fps) et contraintes de rendu
   - **But :** cadrer la “qualité visuelle” et le risque WebGL 3D.
   - **Livrable :** cible (ex: fps minimum) + checklist perf (draw calls, assets) adaptée au MVP.
   - **Acceptation :** la DoD inclut un critère perf vérifiable sur desktop.
