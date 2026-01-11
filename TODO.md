@@ -25,7 +25,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique A — Cadrage & clarifications
 
-- [ ] **id001** **(P0)** _(S)_ Clarifier la stratégie HTTPS “sans domaine”
+- [x] **id001** **(P0)** _(S)_ Clarifier la stratégie HTTPS “sans domaine”
 
   - **But :** rendre le déploiement prod conforme (HTTPS requis, domaine non requis).
   - **Livrable :** décision documentée (reverse-proxy/certificat) + variables/env nécessaires.
@@ -33,7 +33,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
   - **Dépendances :** Aucune.
   - **Docs sources :** [/docs/09-cicd-et-deploiement.md](docs/09-cicd-et-deploiement.md) → “Déploiement (décisions actées)” ; [/docs/10-exploitation-et-maintenance.md](docs/10-exploitation-et-maintenance.md) → “Sécurité (minimum)” ; [/clarifications/06-deploiement-et-hebergement.md](clarifications/06-deploiement-et-hebergement.md).
 
-- [ ] **id002** **(P1)** _(S)_ Clarifier le barème des bonus (valeurs chiffrées)
+- [x] **id002** **(P1)** _(S)_ Clarifier le barème des bonus (valeurs chiffrées)
 
   - **But :** éviter un scoring arbitraire non conforme.
   - **Livrable :** table de valeurs (type d’ennemi, streak, précision) + exemples.

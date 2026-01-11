@@ -2,7 +2,7 @@
 
 ## Résumé
 
-- Date : 2026-01-10
+- Date : 2026-01-11
 - Source de l’idée : `input/brief.md`
 - Document en cours : `docs/10-exploitation-et-maintenance.md` (v0.1 à rédiger)
 - Prochain document pressenti : (fin du référentiel)
@@ -51,3 +51,7 @@
 - 2026-01-10 : Ouverture de `clarifications/06-deploiement-et-hebergement.md` (choix d’hébergement/déploiement).
 - 2026-01-10 : Prise en compte des réponses ; clôture de `clarifications/06-deploiement-et-hebergement.md` ; mise à jour de `docs/09-cicd-et-deploiement.md`.
 - 2026-01-10 : Validation utilisateur : `docs/09-cicd-et-deploiement.md` marqué FAIT ; démarrage de `docs/10-exploitation-et-maintenance.md`.
+
+- 2026-01-11 : Ouverture de `clarifications/08-bareme-bonus.md` (barème chiffré des bonus) suite à la todo id002.
+- 2026-01-11 : Prise en compte des réponses ; clôture de `clarifications/08-bareme-bonus.md` ; barème bonus chiffré + exemples.
+- 2026-01-11 : Mise à jour de `docs/04-specification-fonctionnelle.md` et `docs/03-user-stories-et-flux.md` pour référencer `clarifications/08-bareme-bonus.md`.

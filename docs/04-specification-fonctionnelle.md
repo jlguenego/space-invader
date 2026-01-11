@@ -156,6 +156,7 @@ Doit afficher :
   - série de kills (streak),
   - précision.
 - Ordre de grandeur : 1 à 1000 points selon l’importance.
+- Barème chiffré (MVP) : voir `clarifications/08-bareme-bonus.md`.
 
 ### 7.4 Multiplicateurs (définition)
 
@@ -166,7 +167,7 @@ Doit afficher :
 
 ## 8. Points à préciser (non bloquants pour la structure)
 
-- Barème exact des bonus (valeurs par type/condition).
+- Barème exact des bonus (valeurs par type/condition) : spécifié dans `clarifications/08-bareme-bonus.md`.
 - Liste précise des types d’ennemis déclenchant les multiplicateurs et durées associées.
 
 ## 9. Critères d’acceptation globaux

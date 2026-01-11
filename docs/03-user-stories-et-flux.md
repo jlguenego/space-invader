@@ -202,5 +202,5 @@ Ce document sert d’entrée à la spécification fonctionnelle.
 
 ## Points à préciser plus tard (si besoin)
 
-- Détail des valeurs exactes par bonus (répartition des 1..1000 par type/condition) si on veut une spécification chiffrée.
+- Détail des valeurs exactes par bonus (répartition des 1..1000 par type/condition) : spécifié (MVP) dans `clarifications/08-bareme-bonus.md`.
 - Liste précise des “types d’ennemis” qui déclenchent un multiplicateur et les durées associées.
