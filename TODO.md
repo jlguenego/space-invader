@@ -108,7 +108,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Durcir le MVP sans sur-scope ; Livrable: limite payload JSON + headers de base + erreurs prod sans détails ; Acceptation: payload trop gros rejeté et aucune stacktrace exposée ; Deps: id010 ; Docs: /docs/09-cicd-et-deploiement.md → “Sécurité & conformité (minimum)”, /docs/07-guidelines-developpement.md → “Gestion d’erreurs”.
 
-- [ ] **id016** **(P1)** _(M)_ Ajouter des logs serveur exploitables
+- [x] **id016** **(P1)** _(M)_ Ajouter des logs serveur exploitables
 
   - But: Diagnostiquer en prod via stdout ; Livrable: logs démarrage + validation + I/O JSON + erreurs ; Acceptation: incident écriture JSON détectable via logs ; Deps: id010, id012 ; Docs: /docs/08-qualite-tests-et-ux.md → “Observabilité (MVP)”, /docs/10-exploitation-et-maintenance.md → “Logs”.
 

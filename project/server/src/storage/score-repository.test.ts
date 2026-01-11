@@ -4,6 +4,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import { createScoreRepository, type ScoreEntry } from './score-repository';
+import type { LogEvent, Logger } from '../logger';
 
 async function makeTempDir(): Promise<string> {
   return await fs.mkdtemp(path.join(os.tmpdir(), 'space-invaders-scores-'));
@@ -97,6 +98,51 @@ describe('scoreRepository (file JSON + atomic write + mutex)', () => {
 
       const repo = createScoreRepository({ dataDir });
       await expect(repo.readAll()).rejects.toThrow(/unsupported version/);
+    } finally {
+      await fs.rm(tmpRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('logs an error when atomic write fails (incident detectable via logs)', async () => {
+    const tmpRoot = await makeTempDir();
+    const dataDir = path.join(tmpRoot, 'data');
+
+    const events: LogEvent[] = [];
+    const logger: Logger = {
+      debug: (msg, fields) => events.push({ ts: 'x', level: 'debug', msg, ...(fields ?? {}) }),
+      info: (msg, fields) => events.push({ ts: 'x', level: 'info', msg, ...(fields ?? {}) }),
+      warn: (msg, fields) => events.push({ ts: 'x', level: 'warn', msg, ...(fields ?? {}) }),
+      error: (msg, fields) => events.push({ ts: 'x', level: 'error', msg, ...(fields ?? {}) }),
+      child: (_fields) => logger,
+    };
+
+    try {
+      const repo = createScoreRepository({
+        dataDir,
+        logger,
+        writeJsonAtomic: async () => {
+          throw new Error('simulated write failure');
+        },
+      });
+
+      const entry: ScoreEntry = {
+        id: 'id-1',
+        createdAt: '2026-01-11T00:00:00.000Z',
+        dayKeyParis: '2026-01-11',
+        pseudo: 'Anonyme',
+        score: 1,
+      };
+
+      await expect(repo.append(entry)).rejects.toThrow(/simulated write failure/);
+
+      const errorEvent = events.find((e) => e.level === 'error');
+      if (!errorEvent) {
+        throw new Error(`Expected an error log event. Got: ${JSON.stringify(events, null, 2)}`);
+      }
+
+      // Must be exploitable/greppable: structured fields including an event name and an operation.
+      expect((errorEvent as Record<string, unknown>).event).toBeTruthy();
+      expect((errorEvent as Record<string, unknown>).op).toBeTruthy();
     } finally {
       await fs.rm(tmpRoot, { recursive: true, force: true });
     }

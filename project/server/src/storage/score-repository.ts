@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
 import { Mutex } from './mutex';
+import { createLogger, serializeError, type Logger } from '../logger';
 
 export type ScoreEntry = {
   id: string;
@@ -73,10 +74,19 @@ async function writeJsonAtomic(targetPath: string, value: unknown): Promise<void
   }
 }
 
-export function createScoreRepository(options?: { dataDir?: string }): ScoreRepository {
+export function createScoreRepository(options?: {
+  dataDir?: string;
+  logger?: Logger;
+  writeJsonAtomic?: (targetPath: string, value: unknown) => Promise<void>;
+}): ScoreRepository {
   const dataDir = options?.dataDir ?? process.env.DATA_DIR ?? path.resolve(process.cwd(), 'data');
   const scoresPath = path.join(dataDir, 'scores.json');
   const mutex = new Mutex();
+
+  const logger = (
+    options?.logger ?? createLogger({ baseFields: { component: 'score-repository' } })
+  ).child({ scoresPath });
+  const writeJsonAtomicImpl = options?.writeJsonAtomic ?? writeJsonAtomic;
 
   let initPromise: Promise<void> | undefined;
 
@@ -84,10 +94,31 @@ export function createScoreRepository(options?: { dataDir?: string }): ScoreRepo
     if (initPromise) return initPromise;
 
     initPromise = mutex.runExclusive(async () => {
-      await fs.mkdir(dataDir, { recursive: true });
+      try {
+        await fs.mkdir(dataDir, { recursive: true });
+      } catch (err) {
+        logger.error('failed to ensure data directory', {
+          event: 'scores.io_error',
+          op: 'mkdir',
+          dataDir,
+          ...serializeError(err),
+        });
+        throw err;
+      }
 
       if (!(await fileExists(scoresPath))) {
-        await writeJsonAtomic(scoresPath, defaultScoreFile());
+        try {
+          await writeJsonAtomicImpl(scoresPath, defaultScoreFile());
+          logger.info('initialized scores file', { event: 'scores.init', dataDir, scoresPath });
+        } catch (err) {
+          logger.error('failed to initialize scores file', {
+            event: 'scores.io_error',
+            op: 'init-write',
+            dataDir,
+            ...serializeError(err),
+          });
+          throw err;
+        }
       }
     });
 
@@ -97,13 +128,29 @@ export function createScoreRepository(options?: { dataDir?: string }): ScoreRepo
   async function readCurrentFile(): Promise<ScoreFileV1> {
     await ensureInitialized();
 
-    const raw = await fs.readFile(scoresPath, 'utf8');
+    let raw: string;
+    try {
+      raw = await fs.readFile(scoresPath, 'utf8');
+    } catch (err) {
+      logger.error('failed to read scores file', {
+        event: 'scores.io_error',
+        op: 'read',
+        ...serializeError(err),
+      });
+      throw err;
+    }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
-    } catch {
-      throw new Error('Invalid scores file: JSON parse failed');
+    } catch (err) {
+      const parseErr = new Error('Invalid scores file: JSON parse failed');
+      logger.error(parseErr.message, {
+        event: 'scores.parse_error',
+        op: 'parse',
+        ...serializeError(err),
+      });
+      throw parseErr;
     }
 
     assertScoreFileV1(parsed);
@@ -125,7 +172,16 @@ export function createScoreRepository(options?: { dataDir?: string }): ScoreRepo
         const current = await readCurrentFile();
         current.scores.push(entry);
 
-        await writeJsonAtomic(scoresPath, current);
+        try {
+          await writeJsonAtomicImpl(scoresPath, current);
+        } catch (err) {
+          logger.error('failed to write scores file', {
+            event: 'scores.io_error',
+            op: 'write',
+            ...serializeError(err),
+          });
+          throw err;
+        }
         return entry;
       });
     },
