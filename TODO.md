@@ -100,7 +100,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Enregistrer un score conforme ; Livrable: endpoint + validation (`score` >= 0) + normalisation `pseudo` (trim, max) + `createdAt` UTC + `dayKeyParis` ; Acceptation: 201/400/500 conformes + pseudo vide→“Anonyme” ; Deps: id011, id012 ; Docs: /docs/06-architecture-technique.md → “POST /api/scores”, /docs/04-specification-fonctionnelle.md → “Enregistrement d’un score”, /docs/07-guidelines-developpement.md → “Validation stricte”.
 
-- [ ] **id014** **(P0)** _(M)_ Implémenter `GET /api/leaderboard/day` (top 10 du jour)
+- [x] **id014** **(P0)** _(M)_ Implémenter `GET /api/leaderboard/day` (top 10 du jour)
 
   - But: Fournir le top 10 du jour ; Livrable: endpoint filtre `dayKeyParis` + tri desc + cap 10 ; Acceptation: réponse contient `timezone`, `dayKeyParis`, `entries` rangées ; Deps: id011, id012 ; Docs: /docs/06-architecture-technique.md → “GET /api/leaderboard/day”, /docs/04-specification-fonctionnelle.md → “Top 10 du jour”.
 

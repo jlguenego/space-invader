@@ -4,6 +4,7 @@ import { AppError } from '../http/errors';
 import { createScoreRepository } from '../storage/score-repository';
 
 import { registerScoresRoutes } from './scores';
+import { registerLeaderboardRoutes } from './leaderboard';
 
 export function createApiRouter(options?: { extend?: (router: Router) => void }): Router {
   const router = express.Router();
@@ -11,6 +12,7 @@ export function createApiRouter(options?: { extend?: (router: Router) => void })
   const repo = createScoreRepository();
 
   registerScoresRoutes(router, { repo });
+  registerLeaderboardRoutes(router, { repo });
 
   router.get('/', (_req, res) => {
     res.status(200).json({ ok: true });
