@@ -10,6 +10,7 @@
     "noEmit": true,
     "skipLibCheck": true,
     "types": ["bun-types"],
+    "typeRoots": ["./node_modules", "./node_modules/@types"],
     "jsx": "react-jsx"
   },
   "include": ["**/*.ts", "**/*.tsx"],
