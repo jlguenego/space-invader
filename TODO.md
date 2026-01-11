@@ -125,7 +125,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Conserver identité/réglages ; Livrable: module `storage/` (localStorage) + API prefs ; Acceptation: reload conserve pseudo/réglages/mute ; Deps: id018 ; Docs: /docs/04-specification-fonctionnelle.md → “Pseudo”, “Réglages”, /docs/06-architecture-technique.md → “storage/”.
 
-- [ ] **id020** **(P0)** _(M)_ Implémenter les écrans/états UI (Accueil/Jeu/Pause/Fin/Classement)
+- [x] **id020** **(P0)** _(M)_ Implémenter les écrans/états UI (Accueil/Jeu/Pause/Fin/Classement)
 
   - But: Couvrir le parcours MVP ; Livrable: composants UI + state machine d’écrans ; Acceptation: jouer→pause→game over→save score→voir top10 ; Deps: id018, id019 ; Docs: /docs/04-specification-fonctionnelle.md → “Écrans / états”, /docs/02-parcours-et-experience.md → “Parcours”.
 
