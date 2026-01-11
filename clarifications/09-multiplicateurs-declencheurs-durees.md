@@ -6,111 +6,86 @@
   - `docs/04-specification-fonctionnelle.md` (7.4 Multiplicateurs + 8 Points à préciser)
   - `docs/03-user-stories-et-flux.md` (Décisions actées + Points à préciser)
   - `clarifications/04-details-score-et-sensibilite.md` (multiplicateurs : types + principes)
-- Statut : OUVERTE
+- Statut : CLOTUREE
 
 ## Contexte
 
-Les multiplicateurs existent (combo / temps / difficulté / streak). Ils sont déclenchés par la mort de certains types d’ennemis et durent un temps prédéterminé, sans plafond. Cette clarification fixe des règles **chiffrées** et **non ambiguës** pour permettre une implémentation et des tests unitaires.
+Les multiplicateurs existent (combo / temps / difficulté / streak). Ils sont déclenchés par la mort de certains types d’ennemis et durent un temps prédéterminé, sans plafond. Cette clarification fixe des règles chiffrées et non ambiguës pour permettre une implémentation et des tests unitaires.
 
-## Questions (à cocher)
+## Réponses (utilisateur)
 
-### Q1 — Liste des types d’ennemis à considérer (pour déclenchement des multiplicateurs) ?
+- Q1 à Q9 : **Laisse l’IA choisir pour toi (avec justification)**
+- Intention : **règles simples et intuitives**
 
-- [ ] Option A — 3 types : Standard / Rapide / Tank (impacts : simple, tuning rapide)
-- [ ] Option B — 4 types : Standard / Rapide / Tank / Elite (impacts : plus de variété)
-- [ ] Option C — 5 types : Standard / Rapide / Tank / Sniper / Elite (impacts : plus riche, plus long à équilibrer)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+## Décision / Spécification finale
 
-### Q2 — Quels types d’ennemis déclenchent un multiplicateur ?
+### Résumé des choix (avec justification)
 
-- [ ] Option A — Uniquement les ennemis “rares” (ex: Elite) (impacts : événementiel)
-- [ ] Option B — Certains types (ex: Rapide + Elite) (impacts : équilibrage flexible)
-- [ ] Option C — Tous les types peuvent déclencher, mais avec des effets différents (impacts : plus complexe)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+- Types d’ennemis : 4 types Standard / Rapide / Tank / Elite (simple, assez varié)
+- Déclenchement : tous les types peuvent déclencher, avec effets différents (intuitif et toujours utile)
+- Mapping : table fixe (1 type d’ennemi → 1 type de multiplicateur), déterministe et testable
+- Valeurs : 4 niveaux (x1.10 / x1.25 / x1.50 / x2.00), lisible et progressif
+- Durées : par type de multiplicateur (contrôle fin, reste simple)
+- Refresh : le timer repart à la durée pleine (règle simple)
+- Cumul : un seul multiplicateur actif à la fois (le plus récent remplace), limite la variance
+- Application : le multiplicateur s’applique sur (points ennemis + bonus)
+- Temps/arrondi : durées en millisecondes entières ; scoring arrondi à l’entier inférieur
 
-### Q3 — Mapping « ennemi déclencheur → type de multiplicateur » ?
+### Définitions (pour implémentation & tests)
 
-> Choisir une règle déterministe (sans ambiguïté) pour associer un kill à un multiplicateur.
+- Temps : `nowMs` est un entier (millisecondes) basé sur un temps monotone côté moteur.
+- Actif : un multiplicateur est actif si `nowMs < activeUntilMs`.
+- Ordre des opérations sur un kill `onEnemyKilled(enemyType, eventPoints, nowMs)` :
+  1. Calculer les points du kill courant avec le multiplicateur déjà actif (s’il existe).
+  2. Puis activer/remplacer le multiplicateur déclenché par l’ennemi tué (il s’applique aux kills suivants).
 
-- [ ] Option A — Chaque type d’ennemi déclenche **un seul** multiplicateur précis (table fixe) (impacts : testable, lisible)
-- [ ] Option B — Les ennemis déclencheurs activent **le même** multiplicateur (ex: “temps”) (impacts : simple)
-- [ ] Option C — Un ennemi peut déclencher **plusieurs** multiplicateurs (impacts : très puissant, plus dur à équilibrer)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+### Table « ennemi → multiplicateur (type + valeur) + durée »
 
-### Q4 — Valeurs des multiplicateurs (x1.2, x1.5, etc.) ?
+| Ennemi tué | Multiplicateur activé | Valeur |    Durée |
+| ---------- | --------------------- | -----: | -------: |
+| Standard   | streak                |  x1.10 |  6000 ms |
+| Rapide     | combo                 |  x1.25 |  4000 ms |
+| Tank       | temps                 |  x1.50 | 10000 ms |
+| Elite      | difficulte            |  x2.00 |  8000 ms |
 
-- [ ] Option A — 3 niveaux : x1.25 / x1.5 / x2.0 (impacts : lisible, impact fort)
-- [ ] Option B — 4 niveaux : x1.1 / x1.25 / x1.5 / x2.0 (impacts : progressif)
-- [ ] Option C — Formule (ex: dépend de la difficulté) (impacts : plus complexe, nécessite règles additionnelles)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+### Règles de cumul / refresh
 
-### Q5 — Durées des multiplicateurs (secondes) ?
+- Un seul multiplicateur actif.
+- Déclencher un multiplicateur pendant qu’un autre est actif remplace immédiatement l’actif, et fixe `activeUntilMs = nowMs + durationMs`.
+- Déclencher le même multiplicateur pendant qu’il est actif refresh (timer repart).
+- Plafond : aucun (comme acté).
 
-- [ ] Option A — Durée unique pour tous (ex: 5s) (impacts : simple)
-- [ ] Option B — Durée par type de multiplicateur (ex: combo 3s, temps 10s, etc.) (impacts : plus contrôlable)
-- [ ] Option C — Durée par type d’ennemi déclencheur (impacts : plus de paramètres)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+### Règle de scoring (testable)
 
-### Q6 — Règle de rafraîchissement (si un multiplicateur est redéclenché pendant qu’il est actif) ?
+- `eventPoints` = points du kill avant multiplicateur (points ennemis + bonus).
+- Si un multiplicateur est actif : `scoredPoints = floor(eventPoints * multiplierValue)`.
+- Sinon : `scoredPoints = eventPoints`.
 
-- [ ] Option A — Refresh : le timer repart à la durée max (impacts : encourage focus sur ennemis déclencheurs)
-- [ ] Option B — Extend : ajoute un supplément de durée (cap optionnel) (impacts : peut durer très longtemps)
-- [ ] Option C — Aucun effet : si actif, un nouveau déclenchement est ignoré (impacts : simple, moins “combo”)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+### Exemples (scénarios timeline)
 
-### Q7 — Cumul de multiplicateurs (plusieurs actifs en même temps) ?
+1. Activation puis application sur le kill suivant
 
-- [ ] Option A — Un seul multiplicateur actif à la fois (le plus récent remplace) (impacts : simple)
-- [ ] Option B — Plusieurs possibles, mais pas du même type (impacts : modéré)
-- [ ] Option C — Tous peuvent se cumuler (produit) (impacts : explosif, risque scoring)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+- t=0ms : kill Rapide, eventPoints=100, aucun multiplicateur actif → +100, active combo x1.25 jusqu’à 4000ms
+- t=500ms : kill Standard, eventPoints=100, combo actif → +125, remplace par streak x1.10 jusqu’à 6500ms
 
-### Q8 — Interaction multiplicateurs vs bonus (clarifiés dans `clarifications/08-bareme-bonus.md`) ?
+2. Remplacement (pas de cumul)
 
-- [ ] Option A — Les multiplicateurs s’appliquent sur (ennemis + bonus)
-- [ ] Option B — Les multiplicateurs s’appliquent uniquement sur les points “ennemis” (hors bonus)
-- [ ] Option C — Les multiplicateurs s’appliquent uniquement sur les bonus
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+- t=0ms : kill Tank, eventPoints=200 → +200, active temps x1.50 jusqu’à 10000ms
+- t=2000ms : kill Elite, eventPoints=200, temps actif → +300, remplace par difficulte x2.00 jusqu’à 10000ms
+- t=3000ms : kill Rapide, eventPoints=80, difficulte actif → +160, remplace par combo x1.25 jusqu’à 7000ms
 
-### Q9 — Précision temporelle et arrondi (pour tests unitaires) ?
+3. Expiration
 
-- [ ] Option A — Durées en millisecondes entières, arrondi au ms (impacts : testable)
-- [ ] Option B — Durées en secondes, arrondi au 0.1s (impacts : plus simple, moins précis)
-- [ ] Option C — Tick-based (ex: 60 fps) (impacts : dépend du framerate)
-- [ ] Autre : ____
-- [ ] Je ne sais pas / besoin d’une recommandation
-- [ ] Laisse l’IA choisir pour toi (avec justification)
+- t=0ms : kill Standard, eventPoints=50 → +50, active streak x1.10 jusqu’à 6000ms
+- t=6000ms : kill Standard, eventPoints=50, streak expiré → +50, active streak x1.10 jusqu’à 12000ms
 
-## Options proposées & impacts (récap)
+4. Refresh du même multiplicateur
 
-- Un seul multiplicateur à la fois + refresh timer : le plus simple et très testable.
-- Multiples cumulables : plus spectaculaire mais augmente fortement la variance et le risque d’exploser le scoring.
+- t=0ms : kill Tank, eventPoints=100 → +100, active temps x1.50 jusqu’à 10000ms
+- t=9500ms : kill Tank, eventPoints=100, temps actif → +150, refresh temps x1.50 jusqu’à 19500ms
 
-## Décision attendue
+5. Interaction bonus (multiplicateur sur total)
 
-À partir des réponses, produire une spécification finale :
-
-- la liste des types d’ennemis,
-- la table « ennemi → multiplicateur (type + valeur) + durée »,
-- les règles de cumul/refresh,
-- 3–5 exemples de scénarios (timeline) pour valider par tests.
-
-## Réponses (à compléter)
-
-- Réponses utilisateur :
+- Hypothèse : un kill vaut base 60 + bonus 40 = eventPoints=100
+- t=0ms : kill Elite → +100, active difficulte x2.00 jusqu’à 8000ms
+- t=1000ms : kill Rapide, eventPoints=100 → +200 (bonus inclus)

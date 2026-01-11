@@ -203,4 +203,4 @@ Ce document sert d’entrée à la spécification fonctionnelle.
 ## Points à préciser plus tard (si besoin)
 
 - Détail des valeurs exactes par bonus (répartition des 1..1000 par type/condition) : spécifié (MVP) dans `clarifications/08-bareme-bonus.md`.
-- Liste précise des “types d’ennemis” qui déclenchent un multiplicateur et les durées associées.
+- Multiplicateurs : types d’ennemis déclencheurs et durées associées : spécifié (MVP) dans `clarifications/09-multiplicateurs-declencheurs-durees.md`.

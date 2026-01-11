@@ -164,11 +164,12 @@ Doit afficher :
 - Déclenchement : lorsqu’un certain type d’ennemi est tué.
 - Durée : prédéterminée.
 - Plafond : aucun.
+- Spécification chiffrée (MVP) : voir `clarifications/09-multiplicateurs-declencheurs-durees.md`.
 
 ## 8. Points à préciser (non bloquants pour la structure)
 
 - Barème exact des bonus (valeurs par type/condition) : spécifié dans `clarifications/08-bareme-bonus.md`.
-- Liste précise des types d’ennemis déclenchant les multiplicateurs et durées associées.
+- Multiplicateurs : déclencheurs, durées, valeurs et règles de cumul/refresh : spécifié dans `clarifications/09-multiplicateurs-declencheurs-durees.md`.
 
 ## 9. Critères d’acceptation globaux
 

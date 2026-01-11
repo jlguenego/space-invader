@@ -41,7 +41,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
   - **Dépendances :** Aucune.
   - **Docs sources :** [/docs/04-specification-fonctionnelle.md](docs/04-specification-fonctionnelle.md) → “Bonus (définition)” ; [/docs/03-user-stories-et-flux.md](docs/03-user-stories-et-flux.md) → “Points à préciser plus tard”.
 
-- [ ] **id003** **(P1)** _(S)_ Clarifier les déclencheurs/durées des multiplicateurs
+- [x] **id003** **(P1)** _(S)_ Clarifier les déclencheurs/durées des multiplicateurs
 
   - **But :** rendre les multiplicateurs implémentables et testables.
   - **Livrable :** liste des types d’ennemis déclencheurs + durée + multiplicateur associé.
