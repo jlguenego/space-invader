@@ -129,7 +129,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Couvrir le parcours MVP ; Livrable: composants UI + state machine d’écrans ; Acceptation: jouer→pause→game over→save score→voir top10 ; Deps: id018, id019 ; Docs: /docs/04-specification-fonctionnelle.md → “Écrans / états”, /docs/02-parcours-et-experience.md → “Parcours”.
 
-- [ ] **id021** **(P0)** _(S)_ Intégrer l’API côté client (`POST /api/scores`, `GET /api/leaderboard/day`)
+- [x] **id021** **(P0)** _(S)_ Intégrer l’API côté client (`POST /api/scores`, `GET /api/leaderboard/day`)
 
   - But: Relier UI↔API ; Livrable: module `services/` (fetch, gestion erreurs) ; Acceptation: erreur d’enregistrement non bloquante + message clair ; Deps: id020, id013, id014 ; Docs: /docs/06-architecture-technique.md → “services/ + flux”, /docs/08-qualite-tests-et-ux.md → “Erreurs réseau”.
 

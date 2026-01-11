@@ -86,7 +86,7 @@ export function GameOverScreen(props: {
       <section style={{ ...uiCardStyle, marginTop: 14 }}>
         <h2 style={{ margin: 0, fontSize: 18 }}>Note</h2>
         <p style={{ margin: '10px 0 0', color: uiColors.muted }}>
-          L'enregistrement est simulé (stub). L'API réelle sera branchée dans id021.
+          L'enregistrement du score se fait via l'API du serveur.
         </p>
       </section>
     </main>

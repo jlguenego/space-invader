@@ -105,7 +105,7 @@ export function LeaderboardScreen(props: {
       <section style={{ ...uiCardStyle, marginTop: 14 }}>
         <h2 style={{ margin: 0, fontSize: 18 }}>Note</h2>
         <p style={{ margin: '10px 0 0', color: uiColors.muted }}>
-          Les données sont simulées (stub). L'intégration API réelle arrive dans id021.
+          Le classement est chargé depuis l'API du serveur.
         </p>
       </section>
     </main>

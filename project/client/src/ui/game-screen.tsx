@@ -22,7 +22,8 @@ export function GameScreen(props: {
         <div>
           <h1 style={{ margin: 0 }}>En jeu</h1>
           <p style={{ margin: '8px 0 0', color: uiColors.muted }}>
-            Stub (pas de Three.js / engine). Pause : <strong>P</strong> — Mute : <strong>M</strong>
+            Démo UI (pas encore de Three.js / engine). Pause : <strong>P</strong> — Mute :{' '}
+            <strong>M</strong>
           </p>
         </div>
         <div style={{ textAlign: 'right' }}>

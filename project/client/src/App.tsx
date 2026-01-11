@@ -3,8 +3,8 @@ import { useEffect, useReducer, useState } from 'react';
 import type { Preferences } from './storage/preferences';
 import { loadPreferences, savePreferences } from './storage/preferences';
 
-import { getDailyLeaderboardStub } from './services/leaderboard-service.stub';
-import { saveScoreStub } from './services/scores-service.stub';
+import { getDailyLeaderboard } from './services/leaderboard-service';
+import { saveScore } from './services/scores-service';
 
 import { GameOverScreen } from './ui/game-over-screen';
 import { GameScreen } from './ui/game-screen';
@@ -74,7 +74,7 @@ export function App(): JSX.Element {
     let cancelled = false;
     (async () => {
       try {
-        const leaderboard = await getDailyLeaderboardStub();
+        const leaderboard = await getDailyLeaderboard();
         if (cancelled) return;
         dispatch({ type: 'LEADERBOARD_LOAD_SUCCESS', leaderboard });
       } catch (error) {
@@ -92,7 +92,7 @@ export function App(): JSX.Element {
   async function onSaveScore(finalScore: number): Promise<void> {
     dispatch({ type: 'SCORE_SAVE_START' });
     try {
-      await saveScoreStub({ score: finalScore, pseudo: preferences.pseudo });
+      await saveScore({ score: finalScore, pseudo: preferences.pseudo });
       dispatch({ type: 'SCORE_SAVE_SUCCESS' });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Échec de l'enregistrement";
