@@ -369,13 +369,26 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
   - **Dépendances :** id041.
   - **Docs sources :** [/docs/09-cicd-et-deploiement.md](docs/09-cicd-et-deploiement.md) → “Persistance fichiers (indispensable)” ; [/clarifications/06-deploiement-et-hebergement.md](clarifications/06-deploiement-et-hebergement.md).
 
+- [ ] **id054** **(P0)** _(S)_ Configurer le DNS du sous-domaine `space-invader.jlg-consulting.com`
+
+  - **But :** permettre l’obtention du certificat Let’s Encrypt (ACME HTTP-01) et l’accès public au jeu.
+  - **Livrable :** enregistrements DNS (A, et AAAA si IPv6) pointant vers l’IP du VPS + note courte dans la doc de déploiement.
+  - **Acceptation :** `space-invader.jlg-consulting.com` résout vers le VPS (tests `dig/nslookup`) et l’accès HTTP sur port 80 atteint bien le VPS.
+  - **Dépendances :** id001.
+  - **Docs sources :** [/clarifications/07-https-sans-domaine.md](clarifications/07-https-sans-domaine.md) ; [/docs/09-cicd-et-deploiement.md](docs/09-cicd-et-deploiement.md) → “Stratégie HTTPS (décision id001)”.
+
 - [ ] **id043** **(P0)** _(M)_ Mettre en place la terminaison HTTPS (reverse proxy) selon décision id001
 
   - **But :** respecter HTTPS requis en prod.
-  - **Livrable :** service reverse-proxy (ou configuration) + certificats + doc.
-  - **Acceptation :** accès HTTPS fonctionnel sur VPS ; HTTP redirige vers HTTPS.
-  - **Dépendances :** id001, id042.
-  - **Docs sources :** [/docs/09-cicd-et-deploiement.md](docs/09-cicd-et-deploiement.md) → “HTTPS requis” ; [/docs/10-exploitation-et-maintenance.md](docs/10-exploitation-et-maintenance.md) → “Sécurité (minimum)”.
+  - **Livrable :** Nginx (host) en reverse proxy + certificats Let’s Encrypt (certbot) + redirection HTTP→HTTPS + HSTS + règles UFW + doc.
+  - **Acceptation :**
+    - `https://space-invader.jlg-consulting.com` fonctionne (certificat valide, pas d’alerte navigateur)
+    - `http://space-invader.jlg-consulting.com` redirige vers HTTPS
+    - Nginx proxy vers l’app sur `127.0.0.1:9999`
+    - UFW n’autorise que SSH + HTTP + HTTPS
+    - le renouvellement Let’s Encrypt est automatisé (timer systemd ou équivalent)
+  - **Dépendances :** id001, id042, id054.
+  - **Docs sources :** [/clarifications/07-https-sans-domaine.md](clarifications/07-https-sans-domaine.md) ; [/docs/09-cicd-et-deploiement.md](docs/09-cicd-et-deploiement.md) → “Stratégie HTTPS (décision id001)” ; [/docs/10-exploitation-et-maintenance.md](docs/10-exploitation-et-maintenance.md) → “Sécurité (minimum)”.
 
 - [ ] **id044** **(P0)** _(M)_ Ajouter GitHub Actions CI (install, lint/typecheck, tests, build, artefact)
   - **But :** automatiser la qualité minimale à chaque PR/push.

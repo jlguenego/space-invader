@@ -25,7 +25,13 @@ Définir une approche simple et reproductible pour construire, tester et livrer 
 - Hébergement : VPS OVH (Linux).
 - Conteneurisation : Docker obligatoire, via Docker Compose.
 - Topologie : option A (une seule app Express sert l’API + le front buildé).
-- HTTPS : requis ; domaine non requis.
+- HTTPS : requis ; domaine non requis (au sens « pas besoin d’acheter un domaine dédié au projet »).
+- Stratégie HTTPS (décision id001) :
+  - Hostname : `space-invader.jlg-consulting.com` (sous-domaine de `jlg-consulting.com`)
+  - Terminaison TLS : **Nginx** sur le VPS (host)
+  - Certificat : **Let’s Encrypt** via **Certbot** (ACME **HTTP-01**)
+  - Réseau : ports **80** et **443** ouverts
+  - Routage : HTTP→HTTPS, puis proxy vers l’app sur `127.0.0.1:9999`
 - Persistance : bind mount Docker pour `server/data/` (volume persistant sur disque).
 - Environnements : prod uniquement.
 - CI : GitHub Actions.
@@ -92,6 +98,13 @@ Si Docker est utilisé :
 - `PORT` : port d’écoute.
 - `DATA_DIR` : chemin vers le dossier des données (par défaut `server/data`).
 - `NODE_ENV` : `development|production`.
+
+Variables recommandées (côté déploiement) :
+
+- `PUBLIC_HOSTNAME` : ex `space-invader.jlg-consulting.com` (utile pour la doc / logs)
+- `APP_BIND_HOST` : `127.0.0.1` (recommandé si Nginx est sur le host)
+- `APP_PORT` : `9999` (port local exposé par l’app, ciblé par Nginx)
+- `LETSENCRYPT_EMAIL` : email utilisé par Certbot/Let’s Encrypt
 
 Note : la timezone “jour Europe/Paris” est une règle produit et doit être codée explicitement, pas via une variable système.
 
