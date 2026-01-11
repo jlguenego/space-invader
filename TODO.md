@@ -146,7 +146,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Séparer simulation vs UI ; Livrable: module `game/` (update dt + state machine) ; Acceptation: P fige/reprend, game over déclenche l’écran fin ; Deps: id023 ; Docs: /docs/06-architecture-technique.md → “GameEngine”, /docs/04-specification-fonctionnelle.md → “Pause / Fin de partie”.
 
-- [ ] **id025** **(P0)** _(S)_ Implémenter `InputManager` clavier (flèches/WASD, espace, P, M)
+- [x] **id025** **(P0)** _(S)_ Implémenter `InputManager` clavier (flèches/WASD, espace, P, M)
 
   - But: Contrôles fiables ; Livrable: mapping touches + listeners uniques ; Acceptation: déplacement/tir stables, P pause, M mute ; Deps: id024 ; Docs: /docs/04-specification-fonctionnelle.md → “Contrôles”, /docs/07-guidelines-developpement.md → “Inputs centralisés”.
 

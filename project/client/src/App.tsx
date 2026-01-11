@@ -15,19 +15,14 @@ import { initialUiState, uiReducer } from './ui/ui-state-machine';
 import { uiColors } from './ui/ui-kit';
 
 import { createGameEngine } from './game/game-engine';
-
-function isEditableTarget(target: EventTarget | null): boolean {
-  if (!target) return false;
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName.toLowerCase();
-  return (
-    tag === 'input' || tag === 'textarea' || tag === 'select' || Boolean(target.isContentEditable)
-  );
-}
+import { InputManager } from './game/input-manager';
 
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
   const [uiState, dispatch] = useReducer(uiReducer, initialUiState);
+
+  const uiScreenRef = useRef(uiState.screen);
+  uiScreenRef.current = uiState.screen;
 
   const engineRef = useRef<ReturnType<typeof createGameEngine> | null>(null);
   if (!engineRef.current) {
@@ -42,34 +37,31 @@ export function App(): JSX.Element {
 
   const engine = engineRef.current;
 
+  const inputRef = useRef<InputManager | null>(null);
+  if (!inputRef.current) {
+    inputRef.current = new InputManager({
+      onToggleMute: () => setPreferences((prev) => ({ ...prev, mute: !prev.mute })),
+      onTogglePause: () => {
+        const screen = uiScreenRef.current;
+        if (screen === 'playing' || screen === 'paused') {
+          engine.togglePause();
+          dispatch({ type: 'TOGGLE_PAUSE' });
+        }
+      },
+    });
+  }
+
   useEffect(() => {
     savePreferences(preferences);
   }, [preferences]);
 
-  // Global shortcuts: P (pause) and M (mute).
+  // Centralized keyboard input (single set of listeners).
   useEffect(() => {
-    function onKeyDown(e: KeyboardEvent): void {
-      if (e.repeat) return;
-      if (isEditableTarget(e.target)) return;
-
-      const key = e.key.toLowerCase();
-
-      if (key === 'm') {
-        setPreferences((prev) => ({ ...prev, mute: !prev.mute }));
-        return;
-      }
-
-      if (key === 'p') {
-        if (uiState.screen === 'playing' || uiState.screen === 'paused') {
-          engine.togglePause();
-          dispatch({ type: 'TOGGLE_PAUSE' });
-        }
-      }
-    }
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [engine, uiState.screen]);
+    const input = inputRef.current;
+    if (!input) return;
+    input.attach();
+    return () => input.dispose();
+  }, []);
 
   // Cleanup: ensure no loop survives unmount.
   useEffect(() => {
