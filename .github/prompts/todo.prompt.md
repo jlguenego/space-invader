@@ -51,7 +51,13 @@ Le prompt généré doit **obligatoirement** contenir ces sections :
 - Consulte `AGENTS.md` pour comprendre l'architecture du projet (si présent)
 - Respecte les conventions du projet (voir `specifications/` si présent)
 - Base-toi sur `docs/` et `clarifications/` pour toute décision/règle : ne comble pas les trous “au hasard”.
-- 🚫 **Ne coche pas** le `TODO.md` — seul l'utilisateur valide les tâches terminées
+- ✅ **Clôture (dans le prompt généré)** : demander à l’IA exécutant la tâche de **cocher la case** `- [ ]` → `- [x]` dans `TODO.md` **uniquement si** :
+
+  - tous les livrables sont produits,
+  - tous les critères d’acceptation sont vérifiés,
+  - les éventuels tests/commandes demandés passent.
+
+  Le générateur de prompt (ce document) **ne coche pas** le `TODO.md` au moment de la génération ; il impose que la case soit cochée **à la fin** de l’exécution réelle de la tâche.
 
 ## Clarifications (gate obligatoire)
 
@@ -116,3 +122,8 @@ En plus des sections obligatoires, ajoute au besoin :
 - **Étapes proposées** : séquence d’implémentation minimale (sans faire le travail).
 - **Cas limites** : entrées invalides, erreurs réseau/I/O, timezone/DST, etc. selon la tâche.
 - **Check-list** : tests à écrire, commandes à lancer, vérifications manuelles.
+
+Le prompt généré doit aussi contenir une section (ou une étape finale) **Clôture** qui :
+
+- rappelle que la case de la tâche dans `TODO.md` doit être cochée uniquement si les **Critères de validation** sont tous satisfaits,
+- interdit de cocher d’autres tâches.
