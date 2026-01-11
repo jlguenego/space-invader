@@ -11,16 +11,19 @@ Décrire l’architecture cible (composants, modules, flux, données, API) pour 
 - `docs/05-decisions-structurantes.md`
 - `clarifications/05-choix-techniques-stack-et-stockage.md`
 - `clarifications/10-parametres-difficulte.md`
+- `clarifications/12-vite.md`
 
 ## 1. Vue d’ensemble
 
 ### 1.1 Composants
 
 - Navigateur (front React)
+  - Outillage : Vite (dev server + build)
   - Rendu 3D : Three.js (WebGL)
   - Audio : Howler.js (assets `mp3` + `ogg`)
   - Stockage local : pseudo + réglages (localStorage)
 - Serveur (back Express)
+  - Runtime : Bun (Bun 1.3.5 verrouillée)
   - API REST : enregistrement score + lecture top10 du jour
   - Persistance : fichiers JSON, mono-instance, historique complet
   - Référence “jour” : Europe/Paris
@@ -38,6 +41,8 @@ Décrire l’architecture cible (composants, modules, flux, données, API) pour 
 ```
 
 ## 2. Front-end (React)
+
+Outillage : le front est outillé avec **Vite** (projet React basé sur Vite). Dépendances et scripts sont gérés via **Bun 1.3.5 (verrouillée)**. En production, le serveur tourne sur **Bun (runtime)** (cf. `clarifications/12-vite.md`).
 
 ### 2.1 Principes
 

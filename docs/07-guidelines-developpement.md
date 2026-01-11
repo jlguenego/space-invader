@@ -9,6 +9,7 @@ Définir des conventions et bonnes pratiques de dev pour implémenter le MVP de 
 - `input/brief.md`
 - `docs/05-decisions-structurantes.md`
 - `docs/06-architecture-technique.md`
+- `clarifications/12-vite.md`
 
 ## 1. Principes généraux
 
@@ -16,6 +17,14 @@ Définir des conventions et bonnes pratiques de dev pour implémenter le MVP de 
 - Lisibilité > micro-optimisation.
 - Un seul “owner” par responsabilité (UI, engine, rendu, audio, API, storage).
 - Les décisions structurantes (Three.js, Howler, JSON mono-instance, Europe/Paris) ne doivent pas être contournées.
+
+## 1.1 Outillage & commandes (standard)
+
+- Outil de référence : **Bun 1.3.5** (version verrouillée) pour la gestion des dépendances, l’exécution de scripts, et le runtime.
+- Front-end : outillage **Vite** (dev server + build).
+- Lors de la mise en place d’un module/projet, privilégier les commandes d’initialisation/installation :
+  - `bun create vite@latest`
+  - `bun install <package>`
 
 ## 2. Organisation des dossiers (cible)
 

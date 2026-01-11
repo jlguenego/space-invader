@@ -19,4 +19,14 @@ Ce dossier contient **tout le code exécutable et la configuration de build** du
 
 ## Notes
 
-Cette étape pose uniquement la structure (pas d’initialisation React/Express, pas de tooling CI).
+Cette étape pose uniquement la structure (pas d’initialisation React/Express).
+
+## Outillage (verrouillé)
+
+- Runtime & outillage JS : **Bun 1.3.5** (version verrouillée — dev/CI/prod).
+- Front : React outillé avec **Vite**.
+
+Vérification rapide :
+
+- Windows : `powershell -ExecutionPolicy Bypass -File project/scripts/check-bun-version.ps1`
+- macOS/Linux : `project/scripts/check-bun-version.sh`

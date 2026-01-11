@@ -2,6 +2,10 @@
 
 Back-end Express.
 
+## Runtime
+
+- Runtime en production : **Bun 1.3.5** (verrouillée au niveau repo)
+
 ## Organisation (cible)
 
 - `src/routes/` : routes API (endpoints)

@@ -17,6 +17,7 @@ Consigner les décisions qui structurent durablement le produit (fonctionnel + t
 - `clarifications/03-questions-ouvertes-parcours-et-ux.md`
 - `clarifications/04-details-score-et-sensibilite.md`
 - `clarifications/05-choix-techniques-stack-et-stockage.md`
+- `clarifications/12-vite.md`
 
 ## Décisions actées
 
@@ -141,6 +142,14 @@ Consigner les décisions qui structurent durablement le produit (fonctionnel + t
 - Décision : la journée de classement est définie en Europe/Paris (reset à minuit Europe/Paris).
 - Implication : calcul explicite en fuseau `Europe/Paris` (pas dépendant du fuseau système).
 - Source : `clarifications/05-choix-techniques-stack-et-stockage.md`.
+
+### D-19 — Outillage JS : Bun (1.3.5) + Vite côté front
+
+- Décision : utiliser **Bun** comme outil principal pour le projet (gestion des dépendances, exécution de scripts) et comme **runtime** côté serveur.
+- Version : **Bun 1.3.5 verrouillée** (dev, CI et prod).
+- Décision : côté front-end, utiliser **Vite** comme outillage de dev/build (projet React basé sur Vite).
+- Convention : lors de la construction/initialisation du projet, privilégier les commandes d’installation/initialisation (ex: `bun create …`, `bun install …`).
+- Source : `clarifications/12-vite.md`.
 
 ## Décisions à prendre (non actées)
 

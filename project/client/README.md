@@ -2,6 +2,11 @@
 
 Front-end React.
 
+## Outillage
+
+- Build/dev server : **Vite**
+- Gestion deps/scripts : **Bun 1.3.5** (verrouillée au niveau repo)
+
 ## Organisation (cible)
 
 - `src/ui/` : écrans, overlays, HUD

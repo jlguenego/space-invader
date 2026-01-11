@@ -1,0 +1,33 @@
+name: Tooling (Bun)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  bun-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read expected Bun version
+        id: expected
+        run: |
+          test -f .bun-version
+          echo "version=$(tr -d '\r\n' < .bun-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Install Bun (locked)
+        run: |
+          curl -fsSL https://bun.com/install | bash -s "bun-v${{ steps.expected.outputs.version }}"
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Bun version
+        run: |
+          bun --version
+          test "$(bun --version)" = "${{ steps.expected.outputs.version }}"
+
+      - name: Verify repo scripts
+        run: |
+          chmod +x project/scripts/check-bun-version.sh
+          project/scripts/check-bun-version.sh

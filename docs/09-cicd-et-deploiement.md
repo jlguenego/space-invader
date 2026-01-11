@@ -10,6 +10,7 @@ Définir une approche simple et reproductible pour construire, tester et livrer 
 - `docs/07-guidelines-developpement.md`
 - `docs/08-qualite-tests-et-ux.md`
 - `clarifications/06-deploiement-et-hebergement.md`
+- `clarifications/12-vite.md`
 
 ## 1. Objectifs
 
@@ -43,8 +44,8 @@ Source : `clarifications/06-deploiement-et-hebergement.md`.
 
 ### 3.1 Artefacts
 
-- Front : build statique (ex: `client/dist` ou `client/build`).
-- Back : build Node (TS si utilisé) ou exécution directe (JS).
+- Front : build statique via Vite (ex: `client/dist`).
+- Back : exécution sous Bun (runtime) ; build TS si utilisé, sinon exécution directe (JS).
 
 ### 3.2 Vérifications en CI
 
@@ -61,10 +62,10 @@ Source : `clarifications/06-deploiement-et-hebergement.md`.
 
 ### 4.2 Étapes recommandées
 
-1. Install (cache des dépendances)
+1. Install (cache des dépendances) — privilégier `bun install` (Bun 1.3.5 verrouillée)
 2. Lint + typecheck (si TS)
 3. Tests back
-4. Build front
+4. Build front (Vite)
 5. Build back
 6. Publication d’artefact (zip)
 
@@ -78,7 +79,7 @@ Source : `clarifications/06-deploiement-et-hebergement.md`.
 
 ### 5.2 Option B : front statique + back séparé
 
-- Front hébergé statiquement (CDN/hosting), back sur un serveur Node.
+- Front hébergé statiquement (CDN/hosting), back sur un serveur Bun (runtime).
 - Avantage : mise en cache et perf.
 - Point d’attention : CORS à configurer.
 
