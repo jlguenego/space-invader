@@ -96,6 +96,42 @@ describe('POST /api/scores', () => {
     }
   });
 
+  test('201: empty/blank pseudo becomes Anonyme', async () => {
+    const tmpRoot = await makeTempDir();
+    const prevDataDir = process.env.DATA_DIR;
+    process.env.DATA_DIR = path.join(tmpRoot, 'data');
+
+    const srv = await start();
+
+    try {
+      const r1 = await fetch(`${srv.baseUrl}/api/scores`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ score: 1, pseudo: '' }),
+      });
+      expect(r1.status).toBe(201);
+      await expect(r1.json()).resolves.toMatchObject({
+        ok: true,
+        saved: { pseudo: 'Anonyme', score: 1 },
+      });
+
+      const r2 = await fetch(`${srv.baseUrl}/api/scores`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ score: 2, pseudo: '   ' }),
+      });
+      expect(r2.status).toBe(201);
+      await expect(r2.json()).resolves.toMatchObject({
+        ok: true,
+        saved: { pseudo: 'Anonyme', score: 2 },
+      });
+    } finally {
+      process.env.DATA_DIR = prevDataDir;
+      await srv.close();
+      await fs.rm(tmpRoot, { recursive: true, force: true });
+    }
+  });
+
   test('400: invalid score (missing, not a number, negative, null)', async () => {
     const tmpRoot = await makeTempDir();
     const prevDataDir = process.env.DATA_DIR;
@@ -121,12 +157,24 @@ describe('POST /api/scores', () => {
 
       const r2 = await post({ score: '123' });
       expect(r2.status).toBe(400);
+      await expect(r2.json()).resolves.toEqual({
+        ok: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid score' },
+      });
 
       const r3 = await post({ score: -1 });
       expect(r3.status).toBe(400);
+      await expect(r3.json()).resolves.toEqual({
+        ok: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid score' },
+      });
 
       const r4 = await post({ score: null });
       expect(r4.status).toBe(400);
+      await expect(r4.json()).resolves.toEqual({
+        ok: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid score' },
+      });
     } finally {
       process.env.DATA_DIR = prevDataDir;
       await srv.close();

@@ -197,7 +197,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique H — Tests & qualité
 
-- [ ] **id037** **(P0)** _(M)_ Ajouter les tests back-end prioritaires (validation/timezone/leaderboard)
+- [x] **id037** **(P0)** _(M)_ Ajouter les tests back-end prioritaires (validation/timezone/leaderboard)
 
   - But: Sécuriser les règles sensibles ; Livrable: tests (POST validation, DST `dayKeyParis`, tri/filtre/cap top10) ; Acceptation: CI exécute et couvre les cas du doc qualité ; Deps: id013, id014 ; Docs: /docs/08-qualite-tests-et-ux.md → “Back-end (recommandé)”, /docs/07-guidelines-developpement.md → “Tests (niveau MVP)”.
 
