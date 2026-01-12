@@ -149,7 +149,10 @@ describe('audio-manager', () => {
     await new Promise((r) => setTimeout(r, 0));
 
     expect(created).toHaveLength(1);
-    expect(created[0]?.src).toEqual(['/assets/audio/player-shot.ogg', '/assets/audio/player-shot.mp3']);
+    expect(created[0]?.src).toEqual([
+      '/assets/audio/player-shot.ogg',
+      '/assets/audio/player-shot.mp3',
+    ]);
     expect(plays).toBe(2);
 
     if (typeof previousWindow === 'undefined') {
