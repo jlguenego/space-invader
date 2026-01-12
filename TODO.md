@@ -214,7 +214,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique I — Docker/Compose & CI (GitHub Actions)
 
-- [ ] **id041** **(P0)** _(M)_ Dockeriser l’application (1 service Express servant le front)
+- [x] **id041** **(P0)** _(M)_ Dockeriser l’application (1 service Express servant le front)
 
   - But: Livrer un artefact prod Docker ; Livrable: `project/Dockerfile` (Bun runtime) + build Vite→assets statiques ; Acceptation: image sert UI+API et process tourne sous Bun (pas Node) ; Deps: id017, id018 ; Docs: /docs/09-cicd-et-deploiement.md → “Déploiement (décisions actées)”, /docs/10-exploitation-et-maintenance.md → “Cible de production”.
 

@@ -1,0 +1,26 @@
+# Dependencies
+**/node_modules
+
+# Build outputs
+**/dist
+**/build
+**/.cache
+
+# Local data (mounted in prod)
+server/data
+**/data
+
+# Logs
+**/*.log
+
+# VCS
+.git
+.gitignore
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode
+
+# Misc
+**/*.tmp
