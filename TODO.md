@@ -192,7 +192,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Éviter l’écran noir ; Livrable: détection support + écran “incompatible” ; Acceptation: message clair sans jargon en cas d’échec ; Deps: id023 ; Docs: /docs/04-specification-fonctionnelle.md → “WebGL non supporté”, /docs/06-architecture-technique.md → “Contraintes navigateur”.
 
-- [ ] **id036** **(P0)** _(S)_ Rendre l’échec d’enregistrement score non bloquant (UX)
+- [x] **id036** **(P0)** _(S)_ Rendre l’échec d’enregistrement score non bloquant (UX)
   - But: Permettre de rejouer si API down ; Livrable: message clair + état UI “échec” (sans bloquer) ; Acceptation: en erreur réseau, rejouer reste possible ; Deps: id021 ; Docs: /docs/04-specification-fonctionnelle.md → “Échec d’enregistrement score”, /docs/08-qualite-tests-et-ux.md → “Dégradation gracieuse”.
 
 ### Épique H — Tests & qualité

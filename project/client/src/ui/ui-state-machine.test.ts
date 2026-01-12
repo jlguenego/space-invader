@@ -48,4 +48,48 @@ describe('uiReducer', () => {
       score: 3,
     });
   });
+
+  it('updates score save state only on game-over screen', () => {
+    const gameOverState = uiReducer(
+      { screen: 'playing', score: 10 },
+      { type: 'GAME_OVER', finalScore: 123 },
+    );
+
+    expect(gameOverState.screen).toBe('game-over');
+    if (gameOverState.screen !== 'game-over') throw new Error('unreachable');
+
+    const savingState = uiReducer(gameOverState, { type: 'SCORE_SAVE_START' });
+    expect(savingState.screen).toBe('game-over');
+    if (savingState.screen !== 'game-over') throw new Error('unreachable');
+    expect(savingState.scoreSave).toEqual({ status: 'saving', message: null });
+
+    const errorState = uiReducer(savingState, {
+      type: 'SCORE_SAVE_ERROR',
+      message: "Impossible d'enregistrer le score, réessaie plus tard.",
+    });
+    expect(errorState.screen).toBe('game-over');
+    if (errorState.screen !== 'game-over') throw new Error('unreachable');
+    expect(errorState.scoreSave).toEqual({
+      status: 'error',
+      message: "Impossible d'enregistrer le score, réessaie plus tard.",
+    });
+  });
+
+  it('ignores late score save errors after leaving game-over (non-blocking)', () => {
+    const gameOverState = uiReducer(
+      { screen: 'playing', score: 10 },
+      { type: 'GAME_OVER', finalScore: 123 },
+    );
+    const savingState = uiReducer(gameOverState, { type: 'SCORE_SAVE_START' });
+    const playingState = uiReducer(savingState, { type: 'START_GAME' });
+
+    expect(playingState).toEqual({ screen: 'playing', score: 0 });
+
+    const lateErrorState = uiReducer(playingState, {
+      type: 'SCORE_SAVE_ERROR',
+      message: 'Network down',
+    });
+
+    expect(lateErrorState).toEqual(playingState);
+  });
 });
