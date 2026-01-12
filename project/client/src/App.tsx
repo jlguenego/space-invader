@@ -22,6 +22,8 @@ import { sensitivityMultiplier } from './storage/preferences';
 
 import { createInitialFxState, reduceFxState } from './render/fx-state';
 
+import { audioManager } from './audio/audio-manager';
+
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
   const [uiState, dispatch] = useReducer(uiReducer, initialUiState);
@@ -74,6 +76,11 @@ export function App(): JSX.Element {
   useEffect(() => {
     savePreferences(preferences);
   }, [preferences]);
+
+  // Keep Howler mute in sync with preferences (source of truth).
+  useEffect(() => {
+    audioManager.setMuted(preferences.mute);
+  }, [preferences.mute]);
 
   // Centralized keyboard input (single set of listeners).
   useEffect(() => {

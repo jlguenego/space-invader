@@ -171,7 +171,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique F — Audio (Howler) : SFX + mute
 
-- [ ] **id031** **(P0)** _(M)_ Intégrer Howler.js + mute centralisé (touche M)
+- [x] **id031** **(P0)** _(M)_ Intégrer Howler.js + mute centralisé (touche M)
 
   - But: Fournir SFX + mute persistant ; Livrable: module `audio/` (load/play/mute) + persistance ; Acceptation: M toggle immédiat + état mute visible ; Deps: id019, id025 ; Docs: /docs/05-decisions-structurantes.md → “D-15”, /docs/04-specification-fonctionnelle.md → “En jeu : mute”.
 
