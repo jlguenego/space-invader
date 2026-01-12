@@ -23,11 +23,16 @@ import { sensitivityMultiplier } from './storage/preferences';
 import { createInitialFxState, reduceFxState } from './render/fx-state';
 
 import { audioManager } from './audio/audio-manager';
+import type { AudioUnlockState } from './audio/audio-unlock';
 
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
   const [uiState, dispatch] = useReducer(uiReducer, initialUiState);
   const [lives, setLives] = useState<number>(() => DEFAULT_WORLD_CONFIG.playerLives);
+
+  const [audioUnlockState, setAudioUnlockState] = useState<AudioUnlockState>(() =>
+    audioManager.getUnlockState(),
+  );
 
   const uiScreenRef = useRef(uiState.screen);
   uiScreenRef.current = uiState.screen;
@@ -82,6 +87,12 @@ export function App(): JSX.Element {
     audioManager.setMuted(preferences.mute);
   }, [preferences.mute]);
 
+  // Attempt audio unlock on first user interaction (pointerdown / keydown).
+  useEffect(() => {
+    const dispose = audioManager.registerUnlockOnFirstInteraction(undefined, setAudioUnlockState);
+    return () => dispose();
+  }, []);
+
   // Centralized keyboard input (single set of listeners).
   useEffect(() => {
     const input = inputRef.current;
@@ -135,6 +146,52 @@ export function App(): JSX.Element {
 
   return (
     <div style={{ minHeight: '100vh', background: uiColors.bg }}>
+      {!preferences.mute && audioUnlockState === 'locked' && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 12,
+            left: 12,
+            right: 12,
+            zIndex: 50,
+            background: 'rgba(0,0,0,0.65)',
+            border: `1px solid ${uiColors.border}`,
+            color: uiColors.text,
+            padding: '10px 12px',
+            borderRadius: 10,
+            fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
+            fontSize: 13,
+            maxWidth: 520,
+            margin: '0 auto',
+          }}
+        >
+          Cliquez ou appuyez sur une touche pour activer le son.
+        </div>
+      )}
+
+      {!preferences.mute && audioUnlockState === 'failed' && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 12,
+            left: 12,
+            right: 12,
+            zIndex: 50,
+            background: 'rgba(0,0,0,0.65)',
+            border: `1px solid ${uiColors.border}`,
+            color: uiColors.text,
+            padding: '10px 12px',
+            borderRadius: 10,
+            fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
+            fontSize: 13,
+            maxWidth: 520,
+            margin: '0 auto',
+          }}
+        >
+          Le son est indisponible sur ce navigateur.
+        </div>
+      )}
+
       {uiState.screen === 'home' && (
         <HomeScreen
           preferences={preferences}

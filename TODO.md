@@ -175,7 +175,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Fournir SFX + mute persistant ; Livrable: module `audio/` (load/play/mute) + persistance ; Acceptation: M toggle immédiat + état mute visible ; Deps: id019, id025 ; Docs: /docs/05-decisions-structurantes.md → “D-15”, /docs/04-specification-fonctionnelle.md → “En jeu : mute”.
 
-- [ ] **id032** **(P1)** _(S)_ Gérer l’“audio unlock” après interaction utilisateur
+- [x] **id032** **(P1)** _(S)_ Gérer l’“audio unlock” après interaction utilisateur
 
   - But: Éviter le silence navigateur ; Livrable: unlock (premier click/keypress) + fallback UX ; Acceptation: sons OK après interaction, pas d’erreur bloquante ; Deps: id031 ; Docs: /docs/06-architecture-technique.md → “Contraintes navigateur”, /docs/07-guidelines-developpement.md → “Audio (Howler)”.
 
