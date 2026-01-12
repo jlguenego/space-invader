@@ -27,7 +27,7 @@ export function LeaderboardScreen(props: {
           <p style={{ margin: '8px 0 0', color: uiColors.muted }}>Top 10 du jour — Europe/Paris</p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button type="button" onClick={onGoHome} style={uiButtonStyle}>
+          <button type="button" onClick={onGoHome} style={uiButtonStyle} data-autofocus>
             Accueil
           </button>
         </div>

@@ -209,7 +209,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Valider vite sans outillage ; Livrable: `project/docs/manual-test-checklist.md` ; Acceptation: couvre démarrage/contrôles/pause/mute/game over/API down/leaderboard ; Deps: id020, id034, id035, id036 ; Docs: /docs/08-qualite-tests-et-ux.md → “Checklists de test manuel”.
 
-- [ ] **id040** **(P1)** _(S)_ Assurer l’accessibilité minimale des menus (clavier + focus)
+- [x] **id040** **(P1)** _(S)_ Assurer l’accessibilité minimale des menus (clavier + focus)
   - But: Respecter le socle a11y ; Livrable: navigation clavier + focus visible + labels ; Acceptation: menus utilisables au clavier sans souris ; Deps: id020 ; Docs: /docs/08-qualite-tests-et-ux.md → “Accessibilité (socle minimal)”.
 
 ### Épique I — Docker/Compose & CI (GitHub Actions)

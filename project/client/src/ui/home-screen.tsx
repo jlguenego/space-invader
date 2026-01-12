@@ -55,7 +55,7 @@ export function HomeScreen(props: {
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button type="button" onClick={onStartGame} style={uiButtonStyle}>
+          <button type="button" onClick={onStartGame} style={uiButtonStyle} data-autofocus>
             Démarrer
           </button>
         </div>

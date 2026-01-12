@@ -76,6 +76,7 @@ export function LoadingOverlay(props: { boot: BootState }): JSX.Element | null {
             <button
               type="button"
               onClick={() => window.location.reload()}
+              data-autofocus
               style={{
                 border: `1px solid ${uiColors.border}`,
                 background: 'rgba(255,255,255,0.08)',

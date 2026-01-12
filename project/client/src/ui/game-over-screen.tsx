@@ -54,7 +54,7 @@ export function GameOverScreen(props: {
         <div style={{ fontSize: 44, fontWeight: 900, letterSpacing: 1 }}>{finalScore}</div>
 
         <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button type="button" onClick={onReplay} style={uiButtonStyle}>
+          <button type="button" onClick={onReplay} style={uiButtonStyle} data-autofocus>
             Rejouer
           </button>
 

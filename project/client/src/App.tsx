@@ -13,7 +13,7 @@ import { LeaderboardScreen } from './ui/leaderboard-screen';
 import { LoadingOverlay } from './ui/loading-overlay';
 import { PauseOverlay } from './ui/pause-overlay';
 import { initialUiState, uiReducer } from './ui/ui-state-machine';
-import { uiColors } from './ui/ui-kit';
+import { uiColors, uiGlobalA11yCss } from './ui/ui-kit';
 
 import { bootReducer, initialBootState } from './ui/boot-state';
 
@@ -127,6 +127,16 @@ export function App(): JSX.Element {
       engine.stopLoop();
     };
   }, [engine]);
+
+  // Basic a11y: auto-focus the primary action when changing screens.
+  // Components can opt-in by adding a `data-autofocus` attribute.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      const el = document.querySelector<HTMLElement>('[data-autofocus]');
+      el?.focus();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [uiState.screen]);
 
   // Boot sequence: show an explicit loading state while initializing assets + WebGL.
   useEffect(() => {
@@ -254,6 +264,7 @@ export function App(): JSX.Element {
 
   return (
     <div style={{ minHeight: '100vh', background: uiColors.bg }}>
+      <style>{uiGlobalA11yCss}</style>
       <LoadingOverlay boot={boot} />
 
       <div

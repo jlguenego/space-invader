@@ -6,10 +6,29 @@ export const uiColors = {
   text: '#e8eefc',
   muted: 'rgba(232,238,252,0.75)',
   border: 'rgba(232,238,252,0.18)',
+  focus: '#60a5fa',
   danger: '#ff6b6b',
   success: '#22c55e',
   warning: '#f59e0b',
 };
+
+export const uiGlobalA11yCss = `
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 3px solid ${uiColors.focus};
+    outline-offset: 2px;
+  }
+
+  /* Keep disabled controls readable, but clearly non-interactive. */
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
 
 export const uiLayout = {
   fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
