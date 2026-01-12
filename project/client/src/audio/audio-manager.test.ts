@@ -98,4 +98,122 @@ describe('audio-manager', () => {
 
     dispose();
   });
+
+  test('playSfx does not throw (even when howler.createHowl rejects)', async () => {
+    const previousWindow = (globalThis as unknown as { window?: unknown }).window;
+    // Provide a window so playSfxAsync does not early-return.
+    (globalThis as unknown as { window?: unknown }).window = {};
+
+    const audio = createAudioManager({
+      howler: {
+        mute: () => {},
+        tryUnlock: async () => true,
+        createHowl: async () => {
+          throw new Error('boom');
+        },
+      },
+    });
+
+    expect(() => audio.playSfx('player-shot')).not.toThrow();
+    await new Promise((r) => setTimeout(r, 0));
+
+    if (typeof previousWindow === 'undefined') {
+      delete (globalThis as unknown as { window?: unknown }).window;
+    } else {
+      (globalThis as unknown as { window?: unknown }).window = previousWindow;
+    }
+  });
+
+  test('playSfx calls howler.createHowl once per key and plays it', async () => {
+    const previousWindow = (globalThis as unknown as { window?: unknown }).window;
+    // Provide a window so playSfxAsync does not early-return.
+    (globalThis as unknown as { window?: unknown }).window = {};
+
+    const created: Array<{ src: string[]; preload?: boolean }> = [];
+    let plays = 0;
+
+    const audio = createAudioManager({
+      howler: {
+        mute: () => {},
+        tryUnlock: async () => true,
+        createHowl: async (options) => {
+          created.push({ src: options.src, preload: options.preload });
+          return { play: () => (plays += 1) };
+        },
+      },
+    });
+
+    audio.playSfx('player-shot');
+    audio.playSfx('player-shot');
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(created).toHaveLength(1);
+    expect(created[0]?.src).toEqual(['/assets/audio/player-shot.ogg', '/assets/audio/player-shot.mp3']);
+    expect(plays).toBe(2);
+
+    if (typeof previousWindow === 'undefined') {
+      delete (globalThis as unknown as { window?: unknown }).window;
+    } else {
+      (globalThis as unknown as { window?: unknown }).window = previousWindow;
+    }
+  });
+
+  test('playSfx is a no-op without window (Bun tests / non-DOM)', async () => {
+    const previousWindow = (globalThis as unknown as { window?: unknown }).window;
+    // Ensure window is absent.
+    delete (globalThis as unknown as { window?: unknown }).window;
+
+    let createCalls = 0;
+    const audio = createAudioManager({
+      howler: {
+        mute: () => {},
+        tryUnlock: async () => true,
+        createHowl: async () => {
+          createCalls += 1;
+          return { play: () => {} };
+        },
+      },
+    });
+
+    audio.playSfx('player-shot');
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(createCalls).toBe(0);
+
+    if (typeof previousWindow === 'undefined') {
+      delete (globalThis as unknown as { window?: unknown }).window;
+    } else {
+      (globalThis as unknown as { window?: unknown }).window = previousWindow;
+    }
+  });
+
+  test('playSfx is a no-op when muted', async () => {
+    const previousWindow = (globalThis as unknown as { window?: unknown }).window;
+    (globalThis as unknown as { window?: unknown }).window = {};
+
+    let createCalls = 0;
+    const audio = createAudioManager({
+      howler: {
+        mute: () => {},
+        tryUnlock: async () => true,
+        createHowl: async () => {
+          createCalls += 1;
+          return { play: () => {} };
+        },
+      },
+    });
+
+    audio.setMuted(true);
+    audio.playSfx('player-shot');
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(createCalls).toBe(0);
+
+    if (typeof previousWindow === 'undefined') {
+      delete (globalThis as unknown as { window?: unknown }).window;
+    } else {
+      (globalThis as unknown as { window?: unknown }).window = previousWindow;
+    }
+  });
 });

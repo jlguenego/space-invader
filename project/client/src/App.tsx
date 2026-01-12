@@ -64,10 +64,21 @@ export function App(): JSX.Element {
           fire: false,
         },
       onScoreDelta: (amount) => dispatch({ type: 'INCREMENT_SCORE', amount }),
-      onGameOver: (finalScore) => dispatch({ type: 'GAME_OVER', finalScore }),
+      onGameOver: (finalScore) => {
+        audioManager.playSfx('game-over');
+        dispatch({ type: 'GAME_OVER', finalScore });
+      },
       onWorldEvents: ({ world, events }) => {
         fxRef.current = reduceFxState({ prev: fxRef.current, world, events });
         for (const event of events) {
+          if (event.type === 'PLAYER_SHOT') {
+            audioManager.playSfx('player-shot');
+          }
+
+          if (event.type === 'ENEMY_DESTROYED') {
+            audioManager.playSfx('enemy-explosion');
+          }
+
           if (event.type === 'PLAYER_HIT') {
             setLives(event.remainingLives);
           }
@@ -197,6 +208,7 @@ export function App(): JSX.Element {
           preferences={preferences}
           onChangePreferences={(patch) => setPreferences((prev) => ({ ...prev, ...patch }))}
           onStartGame={() => {
+            audioManager.playSfx('ui-click');
             const multiplier = sensitivityMultiplier(preferences.sensitivity);
             const baseConfig = {
               ...DEFAULT_WORLD_CONFIG,
@@ -240,6 +252,7 @@ export function App(): JSX.Element {
           displayedPseudo={displayedPseudo}
           scoreSave={uiState.scoreSave}
           onReplay={() => {
+            audioManager.playSfx('ui-click');
             setLives(engine.getWorld().config.playerLives);
             fxRef.current = createInitialFxState();
             engine.startNewGame();
@@ -247,8 +260,14 @@ export function App(): JSX.Element {
             dispatch({ type: 'START_GAME' });
           }}
           onSaveScore={() => void onSaveScore(uiState.finalScore)}
-          onOpenLeaderboard={() => dispatch({ type: 'OPEN_LEADERBOARD' })}
-          onGoHome={() => dispatch({ type: 'GO_HOME' })}
+          onOpenLeaderboard={() => {
+            audioManager.playSfx('ui-click');
+            dispatch({ type: 'OPEN_LEADERBOARD' });
+          }}
+          onGoHome={() => {
+            audioManager.playSfx('ui-back');
+            dispatch({ type: 'GO_HOME' });
+          }}
         />
       )}
 
@@ -257,8 +276,14 @@ export function App(): JSX.Element {
           status={uiState.status}
           leaderboard={uiState.leaderboard}
           errorMessage={uiState.errorMessage}
-          onRetry={() => dispatch({ type: 'LEADERBOARD_LOAD_START' })}
-          onGoHome={() => dispatch({ type: 'GO_HOME' })}
+          onRetry={() => {
+            audioManager.playSfx('ui-click');
+            dispatch({ type: 'LEADERBOARD_LOAD_START' });
+          }}
+          onGoHome={() => {
+            audioManager.playSfx('ui-back');
+            dispatch({ type: 'GO_HOME' });
+          }}
         />
       )}
     </div>

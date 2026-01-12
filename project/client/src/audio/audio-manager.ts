@@ -20,9 +20,19 @@ export type CreateAudioManagerOptions = {
   howler?: HowlerLike;
 };
 
+const SFX_SOURCES: Record<SfxKey, string[]> = {
+  'ui-click': ['/assets/audio/ui-click.ogg', '/assets/audio/ui-click.mp3'],
+  'ui-back': ['/assets/audio/ui-back.ogg', '/assets/audio/ui-back.mp3'],
+  'player-shot': ['/assets/audio/player-shot.ogg', '/assets/audio/player-shot.mp3'],
+  'enemy-explosion': ['/assets/audio/enemy-explosion.ogg', '/assets/audio/enemy-explosion.mp3'],
+  'game-over': ['/assets/audio/game-over.ogg', '/assets/audio/game-over.mp3'],
+};
+
 export function createAudioManager(options: CreateAudioManagerOptions = {}): AudioManager {
   const howler = options.howler;
   let muted: boolean | null = null;
+
+  const sfxCache = new Map<SfxKey, Promise<{ play: () => unknown } | null>>();
 
   let unlockState: AudioUnlockState = 'locked';
   let unlockDispose: (() => void) | null = null;
@@ -42,6 +52,39 @@ export function createAudioManager(options: CreateAudioManagerOptions = {}): Aud
     }
   }
 
+  async function getSfxHandle(key: SfxKey): Promise<{ play: () => unknown } | null> {
+    const existing = sfxCache.get(key);
+    if (existing) return existing;
+
+    const p = (async () => {
+      try {
+        const src = SFX_SOURCES[key];
+        const howl = await howler?.createHowl?.({ src, preload: true });
+        return howl ?? null;
+      } catch (error) {
+        console.warn('Failed to load SFX', { key }, error);
+        return null;
+      }
+    })();
+
+    sfxCache.set(key, p);
+    return p;
+  }
+
+  async function playSfxAsync(key: SfxKey): Promise<void> {
+    if (muted ?? false) return;
+
+    // Important for Bun tests / non-DOM environments: do not attempt to load Howler.
+    if (typeof window === 'undefined') return;
+
+    try {
+      const handle = await getSfxHandle(key);
+      handle?.play();
+    } catch (error) {
+      console.warn('Failed to play SFX', { key }, error);
+    }
+  }
+
   return {
     setMuted: (nextMuted) => applyMute(Boolean(nextMuted)),
     toggleMuted: () => {
@@ -49,9 +92,8 @@ export function createAudioManager(options: CreateAudioManagerOptions = {}): Aud
       applyMute(nextMuted);
       return nextMuted;
     },
-    playSfx: (_key) => {
-      // id033 will provide actual SFX assets + mapping.
-      // Until then, this is intentionally a no-op.
+    playSfx: (key) => {
+      void playSfxAsync(key);
     },
     getUnlockState: () => unlockState,
     registerUnlockOnFirstInteraction: (eventTarget, onStateChange) => {

@@ -1,4 +1,4 @@
-import type { HowlerLike } from './howler-like';
+import type { HowlLike, HowlerLike, HowlOptions } from './howler-like';
 
 type HowlerModule = {
   Howler: {
@@ -7,6 +7,9 @@ type HowlerModule = {
       state?: string;
       resume?: () => Promise<unknown>;
     };
+  };
+  Howl: new (options: unknown) => {
+    play: () => unknown;
   };
 };
 
@@ -19,7 +22,9 @@ export function createLazyHowlerAdapter(): HowlerLike {
     if (loaded) return loaded;
     if (!loading) {
       loading = import('howler').then((mod) => {
-        const howler = (mod as unknown as HowlerModule).Howler;
+        const howlerMod = mod as unknown as HowlerModule;
+        const howler = howlerMod.Howler;
+        const Howl = howlerMod.Howl;
         loaded = {
           mute: (muted) => howler.mute(muted),
           tryUnlock: async () => {
@@ -32,6 +37,14 @@ export function createLazyHowlerAdapter(): HowlerLike {
             if (typeof ctx.resume !== 'function') return false;
             await ctx.resume();
             return typeof ctx.state === 'string' ? ctx.state === 'running' : true;
+          },
+          createHowl: async (options: HowlOptions): Promise<HowlLike | null> => {
+            // createHowl is only valid in a DOM-capable environment.
+            if (typeof window === 'undefined') return null;
+            const howl = new Howl(options);
+            return {
+              play: () => howl.play(),
+            };
           },
         };
 
@@ -75,6 +88,18 @@ export function createLazyHowlerAdapter(): HowlerLike {
       } catch (error) {
         console.warn('Failed to unlock Howler', error);
         return false;
+      }
+    },
+    createHowl: async (options: HowlOptions) => {
+      // Important for Bun tests / non-DOM environments: do not attempt to load Howler.
+      if (typeof window === 'undefined') return null;
+
+      try {
+        const howler = await load();
+        return (await howler.createHowl?.(options)) ?? null;
+      } catch (error) {
+        console.warn('Failed to create Howl', error);
+        return null;
       }
     },
   };
