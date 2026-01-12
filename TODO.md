@@ -201,7 +201,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Sécuriser les règles sensibles ; Livrable: tests (POST validation, DST `dayKeyParis`, tri/filtre/cap top10) ; Acceptation: CI exécute et couvre les cas du doc qualité ; Deps: id013, id014 ; Docs: /docs/08-qualite-tests-et-ux.md → “Back-end (recommandé)”, /docs/07-guidelines-developpement.md → “Tests (niveau MVP)”.
 
-- [ ] **id038** **(P1)** _(S)_ Ajouter des tests front sur fonctions pures (input/scoring)
+- [x] **id038** **(P1)** _(S)_ Ajouter des tests front sur fonctions pures (input/scoring)
 
   - But: Tester sans E2E ; Livrable: tests unitaires mapping input + scoring ; Acceptation: un changement de règles casse un test ; Deps: id025, id029 ; Docs: /docs/08-qualite-tests-et-ux.md → “Front-end (recommandé)”, /docs/07-guidelines-developpement.md → “Tests front légers”.
 

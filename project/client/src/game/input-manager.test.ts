@@ -100,6 +100,29 @@ describe('InputManager', () => {
     expect(input.getState().fire).toBe(false);
   });
 
+  test('falls back to KeyboardEvent.key when code is empty (Space + P)', () => {
+    const target = new FakeEventTarget();
+
+    let pauseCount = 0;
+    const input = new InputManager({ eventTarget: target, onTogglePause: () => pauseCount++ });
+    input.attach();
+
+    // Space via key=" "
+    target.dispatch('keydown', keyEvent({ code: '', key: ' ' }));
+    expect(input.getState().fire).toBe(true);
+
+    target.dispatch('keyup', keyEvent({ code: '', key: ' ' }));
+    expect(input.getState().fire).toBe(false);
+
+    // Pause via key="p" / "P" and ignore repeat.
+    target.dispatch('keydown', keyEvent({ code: '', key: 'p', repeat: false }));
+    target.dispatch('keydown', keyEvent({ code: '', key: 'P', repeat: true }));
+    expect(pauseCount).toBe(1);
+
+    expect(input.consumeEdgeActions()).toEqual({ togglePause: true, toggleMute: false });
+    expect(input.consumeEdgeActions()).toEqual({ togglePause: false, toggleMute: false });
+  });
+
   test('P and M are edge-triggered on non-repeated keydown', () => {
     const target = new FakeEventTarget();
 

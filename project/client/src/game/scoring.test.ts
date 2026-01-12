@@ -63,6 +63,34 @@ describe('scoring', () => {
     expect(r.scoreDelta).toBe(110);
   });
 
+  test('streak palier bonus triggers when reaching 10 and 20 kills', () => {
+    let s = createInitialScoreState();
+
+    // Ensure multipliers never apply to the next kill.
+    const t = (n: number) => n * 50_000;
+
+    let r = { next: s, scoreDelta: 0 } as ReturnType<typeof applyEnemyDestroyed>;
+
+    for (let i = 1; i <= 9; i++) {
+      r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: t(i) });
+      s = r.next;
+    }
+
+    // 10th kill => +250 streak bonus.
+    r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: t(10) });
+    s = r.next;
+    expect(r.scoreDelta).toBe(100 + 10 + 250);
+
+    for (let i = 11; i <= 19; i++) {
+      r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: t(i) });
+      s = r.next;
+    }
+
+    // 20th kill => +600 streak bonus.
+    r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: t(20) });
+    expect(r.scoreDelta).toBe(100 + 10 + 600);
+  });
+
   test('multiplier applies to current kill before activation/replacement (clarif 09 order)', () => {
     let s = createInitialScoreState();
 
@@ -80,6 +108,22 @@ describe('scoring', () => {
     expect(s.activeMultiplier?.untilMs).toBe(500 + 6000);
   });
 
+  test('each enemy type activates its expected multiplier kind/value/duration (clarif 09 table)', () => {
+    const s0 = createInitialScoreState();
+
+    const rStandard = applyEnemyDestroyed(s0, { enemyType: 'standard', nowMs: 100 });
+    expect(rStandard.next.activeMultiplier).toEqual({ kind: 'streak', value: 1.1, untilMs: 6100 });
+
+    const rRapide = applyEnemyDestroyed(s0, { enemyType: 'rapide', nowMs: 200 });
+    expect(rRapide.next.activeMultiplier).toEqual({ kind: 'combo', value: 1.25, untilMs: 4200 });
+
+    const rTank = applyEnemyDestroyed(s0, { enemyType: 'tank', nowMs: 300 });
+    expect(rTank.next.activeMultiplier).toEqual({ kind: 'temps', value: 1.5, untilMs: 10300 });
+
+    const rElite = applyEnemyDestroyed(s0, { enemyType: 'elite', nowMs: 400 });
+    expect(rElite.next.activeMultiplier).toEqual({ kind: 'difficulte', value: 2.0, untilMs: 8400 });
+  });
+
   test('multiplier expires when nowMs >= untilMs', () => {
     let s = createInitialScoreState();
 
@@ -90,6 +134,18 @@ describe('scoring', () => {
     // At exactly 6000ms, it is expired (active if nowMs < untilMs).
     r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: 6000 });
     expect(r.scoreDelta).toBe(110);
+  });
+
+  test('kill points are floored after applying multiplier (Math.floor)', () => {
+    let s = createInitialScoreState();
+
+    // First kill activates streak x1.10.
+    let r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: 0 });
+    s = r.next;
+
+    // Next kill while x1.10 is active: (base 100 + rapide bonus 25) * 1.10 = 137.5 => 137.
+    r = applyEnemyDestroyed(s, { enemyType: 'rapide', nowMs: 1000 });
+    expect(r.scoreDelta).toBe(137);
   });
 
   test('precision bonus is computed at end and is not multiplied', () => {
@@ -115,6 +171,41 @@ describe('scoring', () => {
     expect(fin.precision).toBeCloseTo(0.8, 8);
     expect(fin.precisionBonus).toBe(250);
     expect(fin.finalScore).toBe(s.score + 250);
+  });
+
+  test('precision thresholds: shots=0, 0.7, 0.9', () => {
+    // shots=0 => precision 0 and no bonus.
+    let s = createInitialScoreState();
+    let fin = finalizeScore(s);
+    expect(fin.precision).toBe(0);
+    expect(fin.precisionBonus).toBe(0);
+    expect(fin.finalScore).toBe(0);
+
+    // 7/10 => 0.7 => +100
+    s = createInitialScoreState();
+    for (let i = 0; i < 10; i++) s = applyPlayerShot(s);
+
+    // Add 7 hits via 7 kills; ensure multipliers never apply to the next kill.
+    for (let i = 0; i < 7; i++) {
+      const r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: i * 50_000 });
+      s = r.next;
+    }
+
+    fin = finalizeScore(s);
+    expect(fin.precision).toBeCloseTo(0.7, 8);
+    expect(fin.precisionBonus).toBe(100);
+
+    // 9/10 => 0.9 => +500
+    s = createInitialScoreState();
+    for (let i = 0; i < 10; i++) s = applyPlayerShot(s);
+    for (let i = 0; i < 9; i++) {
+      const r = applyEnemyDestroyed(s, { enemyType: 'standard', nowMs: i * 50_000 });
+      s = r.next;
+    }
+
+    fin = finalizeScore(s);
+    expect(fin.precision).toBeCloseTo(0.9, 8);
+    expect(fin.precisionBonus).toBe(500);
   });
 
   test('end-to-end scenario: order + precision', () => {

@@ -46,12 +46,9 @@ async function withFixedDate<T>(isoUtc: string, fn: () => Promise<T>): Promise<T
 
   const RealDate = Date;
   class MockDate extends RealDate {
-    constructor(...args: ConstructorParameters<typeof RealDate>) {
-      // @ts-expect-error - allow zero-arg Date()
-      super(...args);
-      if (args.length === 0) {
-        return new RealDate(fixedMs) as unknown as MockDate;
-      }
+    constructor(...args: unknown[]) {
+      super(...(args as unknown as ConstructorParameters<typeof RealDate>));
+      if (args.length === 0) return new RealDate(fixedMs) as unknown as MockDate;
     }
 
     static now() {
