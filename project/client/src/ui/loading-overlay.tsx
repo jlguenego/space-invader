@@ -2,16 +2,19 @@ import { uiColors } from './ui-kit';
 
 import type { BootState } from './boot-state';
 import { bootPhaseLabel } from './boot-state';
+import { bootErrorCopy } from './boot-error-copy';
 
 export function LoadingOverlay(props: { boot: BootState }): JSX.Element | null {
   const { boot } = props;
 
   if (boot.status === 'ready') return null;
 
-  const title = boot.status === 'error' ? 'Chargement impossible' : 'Space Invaders';
+  const copy = boot.status === 'error' && boot.errorCode ? bootErrorCopy(boot.errorCode) : null;
+  const title =
+    boot.status === 'error' ? (copy?.title ?? 'Chargement impossible') : 'Space Invaders';
   const message =
     boot.status === 'error'
-      ? (boot.message ?? 'Une erreur est survenue au démarrage.')
+      ? (copy?.message ?? boot.message ?? 'Une erreur est survenue au démarrage.')
       : bootPhaseLabel(boot.phase);
 
   return (
@@ -59,6 +62,14 @@ export function LoadingOverlay(props: { boot: BootState }): JSX.Element | null {
         </div>
 
         <div style={{ marginTop: 10, color: uiColors.muted, fontSize: 13 }}>{message}</div>
+
+        {boot.status === 'error' && copy?.actions?.length ? (
+          <ul style={{ margin: '12px 0 0', paddingLeft: 18, color: uiColors.muted, fontSize: 13 }}>
+            {copy.actions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        ) : null}
 
         {boot.status === 'error' && (
           <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>

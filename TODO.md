@@ -188,7 +188,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Expliciter l’état d’attente ; Livrable: overlay “chargement” (assets + WebGL) ; Acceptation: état visible au démarrage ; Deps: id023, id020 ; Docs: /docs/04-specification-fonctionnelle.md → “Chargement / erreurs”, /docs/08-qualite-tests-et-ux.md → “États d’attente”.
 
-- [ ] **id035** **(P0)** _(S)_ Détecter WebGL non supporté et afficher un message non technique
+- [x] **id035** **(P0)** _(S)_ Détecter WebGL non supporté et afficher un message non technique
 
   - But: Éviter l’écran noir ; Livrable: détection support + écran “incompatible” ; Acceptation: message clair sans jargon en cas d’échec ; Deps: id023 ; Docs: /docs/04-specification-fonctionnelle.md → “WebGL non supporté”, /docs/06-architecture-technique.md → “Contraintes navigateur”.
 

@@ -2,9 +2,12 @@ export type BootPhase = 'assets' | 'webgl';
 
 export type BootStatus = 'loading' | 'ready' | 'error';
 
+export type BootErrorCode = 'webgl_incompatible' | 'boot_failed';
+
 export type BootState = {
   status: BootStatus;
   phase: BootPhase | null;
+  errorCode: BootErrorCode | null;
   message: string | null;
 };
 
@@ -12,28 +15,29 @@ export type BootAction =
   | { type: 'BOOT_START' }
   | { type: 'BOOT_PHASE'; phase: BootPhase }
   | { type: 'BOOT_READY' }
-  | { type: 'BOOT_ERROR'; message: string };
+  | { type: 'BOOT_ERROR'; errorCode: BootErrorCode; message: string };
 
 export const initialBootState: BootState = {
   status: 'loading',
   phase: 'assets',
+  errorCode: null,
   message: null,
 };
 
 export function bootReducer(state: BootState, action: BootAction): BootState {
   switch (action.type) {
     case 'BOOT_START': {
-      return { status: 'loading', phase: 'assets', message: null };
+      return { status: 'loading', phase: 'assets', errorCode: null, message: null };
     }
     case 'BOOT_PHASE': {
       if (state.status !== 'loading') return state;
       return { ...state, phase: action.phase };
     }
     case 'BOOT_READY': {
-      return { status: 'ready', phase: null, message: null };
+      return { status: 'ready', phase: null, errorCode: null, message: null };
     }
     case 'BOOT_ERROR': {
-      return { status: 'error', phase: null, message: action.message };
+      return { status: 'error', phase: null, errorCode: action.errorCode, message: action.message };
     }
     default: {
       const _exhaustive: never = action;

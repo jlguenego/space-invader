@@ -28,6 +28,7 @@ import { probeWebgl } from './render/webgl-probe';
 
 import { audioManager } from './audio/audio-manager';
 import type { AudioUnlockState } from './audio/audio-unlock';
+import { bootErrorCopy } from './ui/boot-error-copy';
 
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
@@ -186,7 +187,14 @@ export function App(): JSX.Element {
 
         const probe = probeWebgl(probeEl);
         if (!probe.ok) {
-          throw new Error(probe.message);
+          console.error('WebGL probe failed', probe);
+          const copy = bootErrorCopy('webgl_incompatible');
+          bootDispatch({
+            type: 'BOOT_ERROR',
+            errorCode: 'webgl_incompatible',
+            message: copy.message,
+          });
+          return;
         }
 
         const elapsed = nowMs() - startedAt;
@@ -196,12 +204,10 @@ export function App(): JSX.Element {
         bootDispatch({ type: 'BOOT_READY' });
       } catch (error) {
         if (cancelled) return;
-        const message =
-          error instanceof Error
-            ? 'Impossible de démarrer le jeu sur ce navigateur.'
-            : 'Impossible de démarrer le jeu.';
+        const copy = bootErrorCopy('boot_failed');
+        const message = copy.message;
         console.error('Boot failed', error);
-        bootDispatch({ type: 'BOOT_ERROR', message });
+        bootDispatch({ type: 'BOOT_ERROR', errorCode: 'boot_failed', message });
       }
     })();
 
