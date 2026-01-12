@@ -16,6 +16,8 @@ import { uiColors } from './ui/ui-kit';
 
 import { createGameEngine } from './game/game-engine';
 import { InputManager } from './game/input-manager';
+import { DEFAULT_WORLD_CONFIG } from './game/world-sim';
+import { sensitivityMultiplier } from './storage/preferences';
 
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
@@ -119,6 +121,11 @@ export function App(): JSX.Element {
           preferences={preferences}
           onChangePreferences={(patch) => setPreferences((prev) => ({ ...prev, ...patch }))}
           onStartGame={() => {
+            const multiplier = sensitivityMultiplier(preferences.sensitivity);
+            engine.setWorldConfig({
+              ...DEFAULT_WORLD_CONFIG,
+              shipSpeed: DEFAULT_WORLD_CONFIG.shipSpeed * multiplier,
+            });
             engine.startNewGame();
             engine.startLoop();
             dispatch({ type: 'START_GAME' });

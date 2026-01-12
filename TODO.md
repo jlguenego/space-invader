@@ -154,7 +154,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Rendre le jeu jouable ; Livrable: spawn/mouvements/tirs/hit/game over ; Acceptation: ennemis détruisables et fin de partie atteignable ; Deps: id024, id025 ; Docs: /docs/02-parcours-et-experience.md → “Boucle de gameplay”, /docs/04-specification-fonctionnelle.md → “Périmètre MVP”.
 
-- [ ] **id027** **(P0)** _(S)_ Implémenter la sensibilité (0.8x / 1.0x / 1.2x)
+- [x] **id027** **(P0)** _(S)_ Implémenter la sensibilité (0.8x / 1.0x / 1.2x)
 
   - But: Exposer le réglage confort ; Livrable: règle appliquée à la vitesse joueur ; Acceptation: preset change la vitesse de façon observable ; Deps: id019, id026 ; Docs: /docs/04-specification-fonctionnelle.md → “Sensibilité”, /docs/05-decisions-structurantes.md → “D-09”.
 

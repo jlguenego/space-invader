@@ -25,6 +25,7 @@ export type GameEngineOptions = {
 export type GameEngine = {
   getState: () => GameEngineState;
   getWorld: () => World;
+  setWorldConfig: (worldConfig: WorldConfig) => void;
   startNewGame: () => void;
   togglePause: () => void;
   triggerGameOver: () => void;
@@ -59,7 +60,8 @@ function safeOptions(options: GameEngineOptions | undefined): Required<GameEngin
 export function createGameEngine(options?: GameEngineOptions): GameEngine {
   const opts = safeOptions(options);
 
-  let world = createInitialWorld(opts.worldConfig);
+  let currentWorldConfig = opts.worldConfig;
+  let world = createInitialWorld(currentWorldConfig);
 
   let state: GameEngineState = { status: 'idle', score: 0 };
   let scoreRemainder = 0;
@@ -154,11 +156,19 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
 
   function startNewGame(): void {
     scoreRemainder = 0;
-    world = createInitialWorld(opts.worldConfig);
+    world = createInitialWorld(currentWorldConfig);
     opts.onWorldChanged(world);
     emitState({ status: 'running', score: 0 });
     emitScoreChanged(0);
     maybeStartRaf();
+  }
+
+  function setWorldConfig(worldConfig: WorldConfig): void {
+    currentWorldConfig = worldConfig;
+    if (state.status !== 'idle') return;
+
+    world = createInitialWorld(currentWorldConfig);
+    opts.onWorldChanged(world);
   }
 
   function togglePause(): void {
@@ -209,6 +219,7 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
   return {
     getState: () => state,
     getWorld: () => world,
+    setWorldConfig,
     startNewGame,
     togglePause,
     triggerGameOver,
