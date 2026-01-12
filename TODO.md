@@ -222,7 +222,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Assurer la persistance en mono-instance ; Livrable: Compose (bind mount, env `PORT`/`DATA_DIR`, restart policy) ; Acceptation: restart conserve `scores.json` ; Deps: id041 ; Docs: /docs/09-cicd-et-deploiement.md → “Persistance fichiers”, /clarifications/06-deploiement-et-hebergement.md → “Déploiement”.
 
-- [ ] **id054** **(P0)** _(S)_ Configurer le DNS du sous-domaine `space-invader.jlg-consulting.com`
+- [x] **id054** **(P0)** _(S)_ Configurer le DNS du sous-domaine `space-invader.jlg-consulting.com`
 
   - But: Permettre ACME HTTP-01 + accès public ; Livrable: enregistrements DNS (A/AAAA) + note courte dans doc déploiement ; Acceptation: résolution OK et port 80 atteint le VPS ; Deps: id001 ; Docs: /clarifications/07-https-sans-domaine.md → “Décision”, /docs/09-cicd-et-deploiement.md → “Stratégie HTTPS”.
 

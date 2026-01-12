@@ -29,6 +29,15 @@ Définir une approche simple et reproductible pour construire, tester et livrer 
 - HTTPS : requis ; domaine non requis (au sens « pas besoin d’acheter un domaine dédié au projet »).
 - Stratégie HTTPS (décision id001) :
   - Hostname : `space-invader.jlg-consulting.com` (sous-domaine de `jlg-consulting.com`)
+  - DNS :
+    - Créer un enregistrement **A** : `space-invader` → `51.38.129.125` (TTL recommandé : 300s tant que la mise au point n’est pas terminée)
+    - (Optionnel) Créer un enregistrement **AAAA** seulement si IPv6 est réellement utilisée/routée en prod
+  - Validation DNS (depuis n’importe quelle machine) :
+    - `nslookup space-invader.jlg-consulting.com`
+    - `dig +short space-invader.jlg-consulting.com A`
+  - Validation réseau (pré-requis ACME HTTP-01) :
+    - Depuis une machine extérieure (ton poste, un autre VPS, etc.), vérifier que le VPS répond sur **TCP:80** via le hostname.
+    - Exemple : `curl -I http://space-invader.jlg-consulting.com` (toute réponse HTTP est acceptable ; le point clé est que TCP:80 répond)
   - Terminaison TLS : **Nginx** sur le VPS (host)
   - Certificat : **Let’s Encrypt** via **Certbot** (ACME **HTTP-01**)
   - Réseau : ports **80** et **443** ouverts
