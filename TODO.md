@@ -205,7 +205,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Tester sans E2E ; Livrable: tests unitaires mapping input + scoring ; Acceptation: un changement de règles casse un test ; Deps: id025, id029 ; Docs: /docs/08-qualite-tests-et-ux.md → “Front-end (recommandé)”, /docs/07-guidelines-developpement.md → “Tests front légers”.
 
-- [ ] **id039** **(P1)** _(S)_ Rédiger la checklist de tests manuels “avant démo”
+- [x] **id039** **(P1)** _(S)_ Rédiger la checklist de tests manuels “avant démo”
 
   - But: Valider vite sans outillage ; Livrable: `project/docs/manual-test-checklist.md` ; Acceptation: couvre démarrage/contrôles/pause/mute/game over/API down/leaderboard ; Deps: id020, id034, id035, id036 ; Docs: /docs/08-qualite-tests-et-ux.md → “Checklists de test manuel”.
 
