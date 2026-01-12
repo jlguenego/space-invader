@@ -2,6 +2,8 @@ import * as THREE from 'three';
 
 import type { World } from '../game/world-types';
 
+import type { FxState } from './fx-state';
+
 import {
   clampPixelRatio,
   isRenderableSize,
@@ -10,10 +12,18 @@ import {
   type RenderSize,
 } from './render-sizing';
 
+function clamp(n: number, min: number, max: number): number {
+  if (!Number.isFinite(n)) return min;
+  if (n < min) return min;
+  if (n > max) return max;
+  return n;
+}
+
 export type ThreeRendererOptions = {
   maxPixelRatio?: number;
   clearColor?: number;
   getWorld?: () => World;
+  getFxState?: () => FxState;
 };
 
 export type ThreeRendererRuntime = {
@@ -31,6 +41,7 @@ export function createThreeRenderer(
   const maxPixelRatio = options.maxPixelRatio ?? 2;
   const clearColor = options.clearColor ?? 0x070b16;
   const getWorld = options.getWorld;
+  const getFxState = options.getFxState;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(clearColor);
@@ -63,6 +74,8 @@ export function createThreeRenderer(
   const shipGeometry = new THREE.BoxGeometry(1.8, 0.5, 1.2);
   const shipMaterial = new THREE.MeshStandardMaterial({
     color: 0x60a5fa,
+    emissive: 0x000000,
+    emissiveIntensity: 0.0,
     metalness: 0.1,
     roughness: 0.6,
   });
@@ -84,12 +97,19 @@ export function createThreeRenderer(
     roughness: 0.9,
   });
 
+  const explosionGeometry = new THREE.SphereGeometry(0.35, 10, 10);
+  const explosionPool: THREE.Mesh[] = [];
+  const explosionMeshes = new Map<string, THREE.Mesh>();
+
   const enemyMeshes = new Map<string, THREE.Mesh>();
   const bulletMeshes = new Map<string, THREE.Mesh>();
 
   let currentSize: RenderSize = { width: 0, height: 0 };
   let desiredRunning = false;
   let rafId: number | null = null;
+
+  let lastWorldTimeMs: number | null = null;
+  let smoothedCameraX = 0;
 
   let resizeObserver: ResizeObserver | null = null;
   let onWindowResize: (() => void) | null = null;
@@ -140,8 +160,85 @@ export function createThreeRenderer(
     if (getWorld) {
       const world = getWorld();
 
+      // --- Camera follow (stable + smoothed) ---
+      const targetX = clamp(world.ship.pos.x * 0.65, -8, 8);
+      if (lastWorldTimeMs === null) {
+        smoothedCameraX = targetX;
+      } else {
+        const dtSec = Math.max(0, (world.timeMs - lastWorldTimeMs) / 1000);
+        // Exponential smoothing (~6Hz), stable and framerate independent.
+        const alpha = 1 - Math.exp(-dtSec * 6);
+        smoothedCameraX = smoothedCameraX + (targetX - smoothedCameraX) * alpha;
+      }
+      lastWorldTimeMs = world.timeMs;
+
+      camera.position.set(smoothedCameraX, 10, 18);
+      camera.lookAt(smoothedCameraX * 0.18, 0, 0);
+
       shipMesh.visible = true;
       shipMesh.position.set(world.ship.pos.x, 0.25, world.ship.pos.z);
+
+      // Player hit feedback: brief emissive flash.
+      if (getFxState) {
+        const fx = getFxState();
+        const hitAt = fx.hit.lastPlayerHitAtMs;
+        const hitAgeMs = hitAt === null ? Infinity : world.timeMs - hitAt;
+        const hitT = hitAgeMs <= 0 ? 0 : hitAgeMs / 160;
+        const hitStrength = hitT >= 1 ? 0 : 1 - hitT;
+        shipMaterial.emissive.setHex(0xff2d2d);
+        shipMaterial.emissiveIntensity = 0.9 * hitStrength;
+
+        // Explosions (enemy destroyed)
+        const aliveExplosionIds = new Set<string>();
+        for (const exp of fx.explosions) {
+          aliveExplosionIds.add(exp.id);
+
+          let mesh = explosionMeshes.get(exp.id);
+          if (!mesh) {
+            mesh =
+              explosionPool.pop() ??
+              new THREE.Mesh(
+                explosionGeometry,
+                new THREE.MeshBasicMaterial({
+                  color: 0xffb020,
+                  transparent: true,
+                  opacity: 1,
+                  depthWrite: false,
+                }),
+              );
+            explosionMeshes.set(exp.id, mesh);
+            scene.add(mesh);
+          }
+
+          const t =
+            (world.timeMs - exp.createdAtMs) / Math.max(1, exp.expiresAtMs - exp.createdAtMs);
+          const clampedT = clamp(t, 0, 1);
+          mesh.position.set(exp.pos.x, 0.35, exp.pos.z);
+          const s = 1 + clampedT * 2.2;
+          mesh.scale.setScalar(s);
+
+          const mat = mesh.material;
+          if (mat instanceof THREE.MeshBasicMaterial) {
+            mat.opacity = 1 - clampedT;
+          }
+        }
+
+        for (const [id, mesh] of explosionMeshes) {
+          if (aliveExplosionIds.has(id)) continue;
+          scene.remove(mesh);
+          explosionMeshes.delete(id);
+
+          // Reuse the mesh if possible.
+          mesh.scale.setScalar(1);
+          if (mesh.material instanceof THREE.MeshBasicMaterial) {
+            mesh.material.opacity = 1;
+          }
+          if (explosionPool.length < 30) explosionPool.push(mesh);
+          else {
+            if (mesh.material instanceof THREE.Material) mesh.material.dispose();
+          }
+        }
+      }
 
       const aliveEnemyIds = new Set<string>();
       for (const enemy of world.enemies) {
@@ -240,8 +337,18 @@ export function createThreeRenderer(
 
     for (const mesh of enemyMeshes.values()) scene.remove(mesh);
     for (const mesh of bulletMeshes.values()) scene.remove(mesh);
+    for (const mesh of explosionMeshes.values()) scene.remove(mesh);
     enemyMeshes.clear();
     bulletMeshes.clear();
+    for (const mesh of explosionMeshes.values()) {
+      if (mesh.material instanceof THREE.Material) mesh.material.dispose();
+    }
+    explosionMeshes.clear();
+
+    for (const mesh of explosionPool) {
+      if (mesh.material instanceof THREE.Material) mesh.material.dispose();
+    }
+    explosionPool.length = 0;
 
     shipGeometry.dispose();
     shipMaterial.dispose();
@@ -249,6 +356,7 @@ export function createThreeRenderer(
     enemyMaterial.dispose();
     bulletGeometry.dispose();
     bulletMaterial.dispose();
+    explosionGeometry.dispose();
     renderer.dispose();
 
     const canvas = renderer.domElement;

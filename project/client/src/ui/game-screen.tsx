@@ -2,14 +2,17 @@ import { uiCardStyle, uiColors } from './ui-kit';
 import { useEffect, useRef } from 'react';
 
 import { createThreeRenderer } from '../render/three-renderer';
+import type { FxState } from '../render/fx-state';
 
 export function GameScreen(props: {
   score: number;
+  lives: number;
   mute: boolean;
   paused: boolean;
   getWorld: () => import('../game/world-types').World;
+  getFxState: () => FxState;
 }): JSX.Element {
-  const { score, mute, paused, getWorld } = props;
+  const { score, lives, mute, paused, getWorld, getFxState } = props;
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const runtimeRef = useRef<ReturnType<typeof createThreeRenderer> | null>(null);
@@ -18,7 +21,7 @@ export function GameScreen(props: {
     const containerEl = viewportRef.current;
     if (!containerEl) return;
 
-    const runtime = createThreeRenderer(containerEl, { maxPixelRatio: 2, getWorld });
+    const runtime = createThreeRenderer(containerEl, { maxPixelRatio: 2, getWorld, getFxState });
     runtimeRef.current = runtime;
     runtime.resizeToContainer();
     runtime.start();
@@ -55,9 +58,37 @@ export function GameScreen(props: {
             <strong>P</strong> — Mute : <strong>M</strong>
           </p>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 14, color: uiColors.muted }}>Mute</div>
-          <div style={{ fontSize: 18, fontWeight: 700 }}>{mute ? 'ON' : 'OFF'}</div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          {paused && (
+            <div
+              style={{
+                padding: '6px 10px',
+                borderRadius: 999,
+                border: `1px solid ${uiColors.border}`,
+                background: 'rgba(245, 158, 11, 0.14)',
+                color: uiColors.text,
+                fontWeight: 800,
+                letterSpacing: 0.3,
+              }}
+              aria-label="Jeu en pause"
+            >
+              PAUSE
+            </div>
+          )}
+          <div
+            style={{
+              padding: '6px 10px',
+              borderRadius: 999,
+              border: `1px solid ${uiColors.border}`,
+              background: mute ? 'rgba(255, 107, 107, 0.14)' : 'rgba(34, 197, 94, 0.14)',
+              color: uiColors.text,
+              fontWeight: 800,
+              letterSpacing: 0.3,
+            }}
+            aria-label={mute ? 'Mute activé' : 'Mute désactivé'}
+          >
+            {mute ? 'MUTE ON' : 'MUTE OFF'}
+          </div>
         </div>
       </header>
 
@@ -66,6 +97,10 @@ export function GameScreen(props: {
           <div>
             <div style={{ fontSize: 12, color: uiColors.muted }}>Score</div>
             <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: 1 }}>{score}</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 12, color: uiColors.muted }}>Vies</div>
+            <div style={{ fontSize: 28, fontWeight: 800 }}>{Math.max(0, lives)}</div>
           </div>
         </div>
       </section>

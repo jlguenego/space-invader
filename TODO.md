@@ -166,7 +166,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Score conforme aux règles ; Livrable: module `Scoring` (fonctions pures) + tests d’exemples ; Acceptation: score en jeu + score final, tests couvrent barème/multiplicateurs ; Deps: id026, id002, id003 ; Docs: /docs/04-specification-fonctionnelle.md → “Score / Bonus / Multiplicateurs”, /clarifications/08-bareme-bonus.md → “Barème”, /clarifications/09-multiplicateurs-declencheurs-durees.md → “Règles”.
 
-- [ ] **id030** **(P1)** _(M)_ Ajouter un “polish” visuel (lisibilité + feedbacks)
+- [x] **id030** **(P1)** _(M)_ Ajouter un “polish” visuel (lisibilité + feedbacks)
   - But: Atteindre la qualité perçue MVP ; Livrable: HUD lisible + feedbacks (hit/explosion) + cohérence caméra ; Acceptation: action lisible et événements clés visibles ; Deps: id026 ; Docs: /docs/00-contexte-et-vision.md → “Qualité visuelle”, /docs/08-qualite-tests-et-ux.md → “UX : principes”.
 
 ### Épique F — Audio (Howler) : SFX + mute

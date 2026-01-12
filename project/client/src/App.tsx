@@ -20,14 +20,19 @@ import { DEFAULT_WORLD_CONFIG } from './game/world-sim';
 import { applyDifficultyToWorldConfig } from './game/difficulty';
 import { sensitivityMultiplier } from './storage/preferences';
 
+import { createInitialFxState, reduceFxState } from './render/fx-state';
+
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
   const [uiState, dispatch] = useReducer(uiReducer, initialUiState);
+  const [lives, setLives] = useState<number>(() => DEFAULT_WORLD_CONFIG.playerLives);
 
   const uiScreenRef = useRef(uiState.screen);
   uiScreenRef.current = uiState.screen;
 
   const inputRef = useRef<InputManager | null>(null);
+
+  const fxRef = useRef(createInitialFxState());
 
   const engineRef = useRef<ReturnType<typeof createGameEngine> | null>(null);
   if (!inputRef.current) {
@@ -53,6 +58,14 @@ export function App(): JSX.Element {
         },
       onScoreDelta: (amount) => dispatch({ type: 'INCREMENT_SCORE', amount }),
       onGameOver: (finalScore) => dispatch({ type: 'GAME_OVER', finalScore }),
+      onWorldEvents: ({ world, events }) => {
+        fxRef.current = reduceFxState({ prev: fxRef.current, world, events });
+        for (const event of events) {
+          if (event.type === 'PLAYER_HIT') {
+            setLives(event.remainingLives);
+          }
+        }
+      },
     });
   }
 
@@ -125,7 +138,10 @@ export function App(): JSX.Element {
               ...DEFAULT_WORLD_CONFIG,
               shipSpeed: DEFAULT_WORLD_CONFIG.shipSpeed * multiplier,
             };
-            engine.setWorldConfig(applyDifficultyToWorldConfig(baseConfig, preferences.difficulty));
+            const config = applyDifficultyToWorldConfig(baseConfig, preferences.difficulty);
+            engine.setWorldConfig(config);
+            setLives(config.playerLives);
+            fxRef.current = createInitialFxState();
             engine.startNewGame();
             engine.startLoop();
             dispatch({ type: 'START_GAME' });
@@ -137,9 +153,11 @@ export function App(): JSX.Element {
         <>
           <GameScreen
             score={uiState.score}
+            lives={lives}
             mute={preferences.mute}
             paused={uiState.screen === 'paused'}
             getWorld={() => engine.getWorld()}
+            getFxState={() => fxRef.current}
           />
           {uiState.screen === 'paused' && (
             <PauseOverlay
@@ -158,6 +176,8 @@ export function App(): JSX.Element {
           displayedPseudo={displayedPseudo}
           scoreSave={uiState.scoreSave}
           onReplay={() => {
+            setLives(engine.getWorld().config.playerLives);
+            fxRef.current = createInitialFxState();
             engine.startNewGame();
             engine.startLoop();
             dispatch({ type: 'START_GAME' });

@@ -1,5 +1,5 @@
 import type { InputState } from './input-manager';
-import { DEFAULT_INPUT_STATE, type World, type WorldConfig } from './world-types';
+import { DEFAULT_INPUT_STATE, type World, type WorldConfig, type WorldEvent } from './world-types';
 import { createInitialWorld, DEFAULT_WORLD_CONFIG, updateWorld } from './world-sim';
 import {
   applyEnemyDestroyed,
@@ -27,6 +27,7 @@ export type GameEngineOptions = {
   onGameOver?: (finalScore: number) => void;
   getInputState?: () => InputState;
   onWorldChanged?: (world: World) => void;
+  onWorldEvents?: (params: { world: World; events: WorldEvent[] }) => void;
   worldConfig?: WorldConfig;
 };
 
@@ -61,6 +62,7 @@ function safeOptions(options: GameEngineOptions | undefined): Required<GameEngin
     onGameOver: options?.onGameOver ?? (() => {}),
     getInputState: options?.getInputState ?? (() => DEFAULT_INPUT_STATE),
     onWorldChanged: options?.onWorldChanged ?? (() => {}),
+    onWorldEvents: options?.onWorldEvents ?? (() => {}),
     worldConfig: options?.worldConfig ?? DEFAULT_WORLD_CONFIG,
   };
 }
@@ -140,6 +142,9 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
     const result = updateWorld(world, input, clampedMs);
     world = result.world;
     opts.onWorldChanged(world);
+    if (result.events.length > 0) {
+      opts.onWorldEvents({ world, events: result.events });
+    }
 
     let scoreDelta = 0;
     let gameOverTriggered = false;
@@ -198,6 +203,7 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
     scoreState = createInitialScoreState();
     world = createInitialWorld(currentWorldConfig);
     opts.onWorldChanged(world);
+    opts.onWorldEvents({ world, events: [] });
     emitState({ status: 'running', score: 0 });
     emitScoreChanged(0);
     maybeStartRaf();
@@ -209,6 +215,7 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
 
     world = createInitialWorld(currentWorldConfig);
     opts.onWorldChanged(world);
+    opts.onWorldEvents({ world, events: [] });
   }
 
   function togglePause(): void {
