@@ -10,9 +10,12 @@ import { GameOverScreen } from './ui/game-over-screen';
 import { GameScreen } from './ui/game-screen';
 import { HomeScreen } from './ui/home-screen';
 import { LeaderboardScreen } from './ui/leaderboard-screen';
+import { LoadingOverlay } from './ui/loading-overlay';
 import { PauseOverlay } from './ui/pause-overlay';
 import { initialUiState, uiReducer } from './ui/ui-state-machine';
 import { uiColors } from './ui/ui-kit';
+
+import { bootReducer, initialBootState } from './ui/boot-state';
 
 import { createGameEngine } from './game/game-engine';
 import { InputManager } from './game/input-manager';
@@ -21,6 +24,7 @@ import { applyDifficultyToWorldConfig } from './game/difficulty';
 import { sensitivityMultiplier } from './storage/preferences';
 
 import { createInitialFxState, reduceFxState } from './render/fx-state';
+import { probeWebgl } from './render/webgl-probe';
 
 import { audioManager } from './audio/audio-manager';
 import type { AudioUnlockState } from './audio/audio-unlock';
@@ -28,6 +32,7 @@ import type { AudioUnlockState } from './audio/audio-unlock';
 export function App(): JSX.Element {
   const [preferences, setPreferences] = useState<Preferences>(() => loadPreferences());
   const [uiState, dispatch] = useReducer(uiReducer, initialUiState);
+  const [boot, bootDispatch] = useReducer(bootReducer, initialBootState);
   const [lives, setLives] = useState<number>(() => DEFAULT_WORLD_CONFIG.playerLives);
 
   const [audioUnlockState, setAudioUnlockState] = useState<AudioUnlockState>(() =>
@@ -38,6 +43,8 @@ export function App(): JSX.Element {
   uiScreenRef.current = uiState.screen;
 
   const inputRef = useRef<InputManager | null>(null);
+
+  const webglProbeRef = useRef<HTMLDivElement | null>(null);
 
   const fxRef = useRef(createInitialFxState());
 
@@ -120,6 +127,89 @@ export function App(): JSX.Element {
     };
   }, [engine]);
 
+  // Boot sequence: show an explicit loading state while initializing assets + WebGL.
+  useEffect(() => {
+    let cancelled = false;
+
+    function nowMs(): number {
+      if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+        return performance.now();
+      }
+      return Date.now();
+    }
+
+    function delay(ms: number): Promise<void> {
+      if (ms <= 0) return Promise.resolve();
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function nextFrame(): Promise<void> {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    }
+
+    async function waitForProbeEl(): Promise<HTMLElement> {
+      for (let i = 0; i < 60; i++) {
+        const el = webglProbeRef.current;
+        if (el) return el;
+        await nextFrame();
+      }
+      throw new Error('WebGL probe container not mounted');
+    }
+
+    (async () => {
+      const minOverlayMs = 450;
+      const startedAt = nowMs();
+
+      bootDispatch({ type: 'BOOT_START' });
+
+      // Ensure the overlay has a chance to paint before doing heavier work.
+      await nextFrame();
+      if (cancelled) return;
+
+      try {
+        bootDispatch({ type: 'BOOT_PHASE', phase: 'assets' });
+
+        // Minimal “asset” readiness: wait for fonts (if supported) and a frame.
+        // This keeps the UI stable and avoids a blank first paint.
+        try {
+          await (document as unknown as { fonts?: { ready: Promise<unknown> } }).fonts?.ready;
+        } catch {
+          // ignore
+        }
+
+        await nextFrame();
+        if (cancelled) return;
+
+        bootDispatch({ type: 'BOOT_PHASE', phase: 'webgl' });
+        const probeEl = await waitForProbeEl();
+        if (cancelled) return;
+
+        const probe = probeWebgl(probeEl);
+        if (!probe.ok) {
+          throw new Error(probe.message);
+        }
+
+        const elapsed = nowMs() - startedAt;
+        await delay(minOverlayMs - elapsed);
+        if (cancelled) return;
+
+        bootDispatch({ type: 'BOOT_READY' });
+      } catch (error) {
+        if (cancelled) return;
+        const message =
+          error instanceof Error
+            ? 'Impossible de démarrer le jeu sur ce navigateur.'
+            : 'Impossible de démarrer le jeu.';
+        console.error('Boot failed', error);
+        bootDispatch({ type: 'BOOT_ERROR', message });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Load leaderboard when entering leaderboard screen.
   useEffect(() => {
     if (uiState.screen !== 'leaderboard') return;
@@ -158,6 +248,22 @@ export function App(): JSX.Element {
 
   return (
     <div style={{ minHeight: '100vh', background: uiColors.bg }}>
+      <LoadingOverlay boot={boot} />
+
+      <div
+        ref={webglProbeRef}
+        aria-hidden
+        style={{
+          position: 'fixed',
+          left: -9999,
+          top: -9999,
+          width: 1,
+          height: 1,
+          overflow: 'hidden',
+          pointerEvents: 'none',
+        }}
+      />
+
       {!preferences.mute && audioUnlockState === 'locked' && (
         <div
           style={{

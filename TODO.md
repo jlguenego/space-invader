@@ -184,7 +184,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
 ### Épique G — Robustesse UX : chargement, erreurs, WebGL non supporté
 
-- [ ] **id034** **(P0)** _(S)_ Ajouter un écran de chargement/initialisation WebGL
+- [x] **id034** **(P0)** _(S)_ Ajouter un écran de chargement/initialisation WebGL
 
   - But: Expliciter l’état d’attente ; Livrable: overlay “chargement” (assets + WebGL) ; Acceptation: état visible au démarrage ; Deps: id023, id020 ; Docs: /docs/04-specification-fonctionnelle.md → “Chargement / erreurs”, /docs/08-qualite-tests-et-ux.md → “États d’attente”.
 
