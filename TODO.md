@@ -179,7 +179,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Éviter le silence navigateur ; Livrable: unlock (premier click/keypress) + fallback UX ; Acceptation: sons OK après interaction, pas d’erreur bloquante ; Deps: id031 ; Docs: /docs/06-architecture-technique.md → “Contraintes navigateur”, /docs/07-guidelines-developpement.md → “Audio (Howler)”.
 
-- [ ] **id033** **(P1)** _(S)_ Intégrer les assets audio (mp3 + ogg)
+- [x] **id033** **(P1)** _(S)_ Intégrer les assets audio (mp3 + ogg)
   - But: Livrer les formats attendus ; Livrable: assets `public/assets/` + mapping ; Acceptation: sons clés (tir/impact/game over) audibles ; Deps: id031 ; Docs: /docs/05-decisions-structurantes.md → “D-15”, /docs/03-user-stories-et-flux.md → “US-05”.
 
 ### Épique G — Robustesse UX : chargement, erreurs, WebGL non supporté
