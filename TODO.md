@@ -218,7 +218,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Livrer un artefact prod Docker ; Livrable: `project/Dockerfile` (Bun runtime) + build Vite→assets statiques ; Acceptation: image sert UI+API et process tourne sous Bun (pas Node) ; Deps: id017, id018 ; Docs: /docs/09-cicd-et-deploiement.md → “Déploiement (décisions actées)”, /docs/10-exploitation-et-maintenance.md → “Cible de production”.
 
-- [ ] **id042** **(P0)** _(M)_ Créer `project/docker-compose.yml` (prod) avec bind mount `server/data/` + env
+- [x] **id042** **(P0)** _(M)_ Créer `project/docker-compose.yml` (prod) avec bind mount `server/data/` + env
 
   - But: Assurer la persistance en mono-instance ; Livrable: Compose (bind mount, env `PORT`/`DATA_DIR`, restart policy) ; Acceptation: restart conserve `scores.json` ; Deps: id041 ; Docs: /docs/09-cicd-et-deploiement.md → “Persistance fichiers”, /clarifications/06-deploiement-et-hebergement.md → “Déploiement”.
 

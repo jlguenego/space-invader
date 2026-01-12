@@ -1,0 +1,23 @@
+# Production compose for Space Invaders MVP (mono-instance)
+# - Express (Bun) serves the built SPA + /api
+# - Persist JSON data via bind mount of server/data
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: space-invaders-mvp:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # Container listens on 3000; host binds 127.0.0.1:9999 for the Nginx reverse-proxy.
+      PORT: '3000'
+      # Must match the bind mount target.
+      DATA_DIR: /app/server/data
+      # Listen on all interfaces inside the container.
+      APP_BIND_HOST: 0.0.0.0
+    ports:
+      - '127.0.0.1:9999:3000'
+    volumes:
+      - ./server/data:/app/server/data

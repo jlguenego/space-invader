@@ -34,6 +34,14 @@ Impacts CI/outillage (réalisés dans `id008`) :
 
 Cette étape pose uniquement la structure (pas d’initialisation React/Express).
 
+## Production (Docker Compose)
+
+- Compose prod : `project/docker-compose.yml`
+- Port : le conteneur écoute sur `3000` (via `PORT`) et le host expose `127.0.0.1:9999` (prévu pour un proxy Nginx sur le host).
+- Persistance : bind mount `./server/data` → `/app/server/data` ; le serveur lit/écrit `scores.json` dans `DATA_DIR`.
+
+Variables (exemple) : voir `project/.env.example`.
+
 ## Outillage (verrouillé)
 
 - Runtime & outillage JS : **Bun 1.3.5** (version verrouillée — dev/CI/prod).
