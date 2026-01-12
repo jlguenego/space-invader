@@ -21,7 +21,7 @@ export type Enemy = {
   alive: boolean;
 };
 
-export type BulletOwner = 'player';
+export type BulletOwner = 'player' | 'enemy';
 
 export type Bullet = {
   id: string;
@@ -48,6 +48,7 @@ export type WorldConfig = {
   bulletSpeed: number; // units/sec
 
   enemySpeedX: number; // units/sec
+  enemyFireCooldownMs: number;
   enemyStepZOnBounce: number;
   enemySpawn: {
     rows: number;
@@ -57,6 +58,8 @@ export type WorldConfig = {
     origin: Vec2;
   };
 
+  playerLives: number;
+
   gameOverEnemyZ: number;
 };
 
@@ -65,6 +68,8 @@ export type World = {
   timeMs: number;
   nextId: number;
   enemyDirX: -1 | 1;
+  enemyFireCooldownRemainingMs: number;
+  playerLives: number;
   ship: Ship;
   enemies: Enemy[];
   bullets: Bullet[];
@@ -72,7 +77,10 @@ export type World = {
 
 export type WorldEvent =
   | { type: 'ENEMY_DESTROYED'; enemyId: string; byBulletId: string }
-  | { type: 'GAME_OVER'; reason: 'enemy_reached_line' | 'all_enemies_destroyed' };
+  | {
+      type: 'GAME_OVER';
+      reason: 'enemy_reached_line' | 'all_enemies_destroyed' | 'ship_destroyed';
+    };
 
 export type WorldUpdateResult = {
   world: World;

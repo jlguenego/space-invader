@@ -94,4 +94,73 @@ describe('world-sim', () => {
       true,
     );
   });
+
+  test('enemy fire respects cooldown (deterministic shooter)', () => {
+    const config = {
+      ...DEFAULT_WORLD_CONFIG,
+      shipSpeed: 0,
+      shipFireCooldownMs: 999999,
+      bulletSpeed: 0,
+      enemySpeedX: 0,
+      enemyStepZOnBounce: 0,
+      enemyFireCooldownMs: 200,
+    };
+    let world = createInitialWorld(config);
+
+    // No bullets before enough time elapsed.
+    let r = updateWorld(world, DEFAULT_INPUT_STATE, 100);
+    world = r.world;
+    expect(world.bullets.length).toBe(0);
+
+    // Cooldown elapsed -> one enemy bullet.
+    r = updateWorld(world, DEFAULT_INPUT_STATE, 100);
+    world = r.world;
+    expect(world.bullets.length).toBe(1);
+    expect(world.bullets[0]?.owner).toBe('enemy');
+
+    // Not yet elapsed again.
+    r = updateWorld(world, DEFAULT_INPUT_STATE, 150);
+    world = r.world;
+    expect(world.bullets.length).toBe(1);
+
+    // Elapsed -> second bullet.
+    r = updateWorld(world, DEFAULT_INPUT_STATE, 50);
+    world = r.world;
+    expect(world.bullets.length).toBe(2);
+  });
+
+  test('enemy bullet hitting ship decrements lives and triggers game over at 0', () => {
+    const config = {
+      ...DEFAULT_WORLD_CONFIG,
+      shipSpeed: 0,
+      shipFireCooldownMs: 999999,
+      bulletSpeed: 0,
+      enemySpeedX: 0,
+      enemyStepZOnBounce: 0,
+      enemyFireCooldownMs: 999999,
+      playerLives: 1,
+    };
+    let world = createInitialWorld(config);
+
+    // Place an enemy bullet overlapping the ship.
+    world = {
+      ...world,
+      bullets: [
+        {
+          id: 'b_test',
+          owner: 'enemy',
+          pos: { x: 0, z: world.ship.pos.z },
+          vel: { x: 0, z: 0 },
+          halfSize: { x: 0.2, z: 0.2 },
+          alive: true,
+        },
+      ],
+    };
+
+    const r = updateWorld(world, DEFAULT_INPUT_STATE, 16);
+    expect(r.world.playerLives).toBe(0);
+    expect(r.events.some((e) => e.type === 'GAME_OVER' && e.reason === 'ship_destroyed')).toBe(
+      true,
+    );
+  });
 });

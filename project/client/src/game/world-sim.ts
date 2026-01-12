@@ -24,6 +24,7 @@ export const DEFAULT_WORLD_CONFIG: WorldConfig = Object.freeze({
   bulletSpeed: 18,
 
   enemySpeedX: 2.4,
+  enemyFireCooldownMs: 1400,
   enemyStepZOnBounce: 0.7,
   enemySpawn: {
     rows: 4,
@@ -32,6 +33,8 @@ export const DEFAULT_WORLD_CONFIG: WorldConfig = Object.freeze({
     spacingZ: 1.4,
     origin: { x: -7, z: -8 },
   },
+
+  playerLives: 3,
 
   // Ship starts at z=10; game over line is slightly in front.
   gameOverEnemyZ: 8.6,
@@ -68,6 +71,38 @@ function createBulletId(nextId: number): string {
   return `b_${nextId}`;
 }
 
+function pickEnemyShooter(enemies: Enemy[], shipX: number): Enemy | null {
+  // Deterministic: closest enemy to the ship on the lowest alive row.
+  // (max z = closest to ship since ship is at positive z)
+  let best: Enemy | null = null;
+  for (const enemy of enemies) {
+    if (!enemy.alive) continue;
+
+    if (!best) {
+      best = enemy;
+      continue;
+    }
+
+    if (enemy.pos.z > best.pos.z) {
+      best = enemy;
+      continue;
+    }
+    if (enemy.pos.z < best.pos.z) continue;
+
+    const dx = Math.abs(enemy.pos.x - shipX);
+    const bestDx = Math.abs(best.pos.x - shipX);
+    if (dx < bestDx) {
+      best = enemy;
+      continue;
+    }
+    if (dx > bestDx) continue;
+
+    if (enemy.id < best.id) best = enemy;
+  }
+
+  return best;
+}
+
 export function createInitialWorld(config: WorldConfig = DEFAULT_WORLD_CONFIG): World {
   const shipHalf = { x: 0.9, z: 0.6 };
   const shipZ = 10;
@@ -96,6 +131,8 @@ export function createInitialWorld(config: WorldConfig = DEFAULT_WORLD_CONFIG): 
     timeMs: 0,
     nextId,
     enemyDirX: 1,
+    enemyFireCooldownRemainingMs: Math.max(0, config.enemyFireCooldownMs),
+    playerLives: Math.max(0, Math.floor(config.playerLives)),
     ship: {
       id: 'ship',
       pos: { x: 0, z: shipZ },
@@ -127,6 +164,7 @@ export function updateWorld(
   const boundedShipX = clamp(nextShipX, world.config.bounds.minX, world.config.bounds.maxX);
 
   const nextShipCooldown = Math.max(0, world.ship.fireCooldownMs - clampedDtMs);
+  const nextEnemyFireCooldown = Math.max(0, world.enemyFireCooldownRemainingMs - clampedDtMs);
 
   // --- Fire (player) ---
   const nextBullets: Bullet[] = [];
@@ -150,6 +188,27 @@ export function updateWorld(
   for (const bullet of world.bullets) {
     if (!bullet.alive) continue;
     nextBullets.push(bullet);
+  }
+
+  // --- Fire (enemy) ---
+  let enemyFireCooldownRemainingMs = nextEnemyFireCooldown;
+  if (world.config.enemyFireCooldownMs > 0 && enemyFireCooldownRemainingMs <= 0) {
+    const shooter = pickEnemyShooter(world.enemies, boundedShipX);
+    if (shooter) {
+      const bulletId = createBulletId(nextId++);
+      nextBullets.push({
+        id: bulletId,
+        owner: 'enemy',
+        pos: {
+          x: shooter.pos.x,
+          z: shooter.pos.z + shooter.halfSize.z + 0.3,
+        },
+        vel: { x: 0, z: world.config.bulletSpeed },
+        halfSize: { x: 0.12, z: 0.28 },
+        alive: true,
+      });
+      enemyFireCooldownRemainingMs = world.config.enemyFireCooldownMs;
+    }
   }
 
   // --- Enemy movement (formation bounce + descend) ---
@@ -257,7 +316,36 @@ export function updateWorld(
     collidedEnemyIds.has(e.id) ? { ...e, alive: false } : e,
   );
 
+  // --- Collisions: enemy bullet -> ship ---
+  let playerLives = world.playerLives;
+  const bulletsAfterShipHits: Bullet[] = [];
+  for (const bullet of bulletsAfterHits) {
+    if (!bullet.alive) continue;
+    if (bullet.owner !== 'enemy') {
+      bulletsAfterShipHits.push(bullet);
+      continue;
+    }
+
+    const hitShip = intersectsAabb(
+      bullet.pos,
+      bullet.halfSize,
+      { x: boundedShipX, z: world.ship.pos.z },
+      world.ship.halfSize,
+    );
+
+    if (hitShip) {
+      playerLives = Math.max(0, playerLives - 1);
+      continue;
+    }
+
+    bulletsAfterShipHits.push(bullet);
+  }
+
   // --- Game over conditions ---
+  if (playerLives <= 0) {
+    events.push({ type: 'GAME_OVER', reason: 'ship_destroyed' });
+  }
+
   let aliveEnemies = 0;
   for (const enemy of enemiesAfterHits) {
     if (!enemy.alive) continue;
@@ -277,13 +365,15 @@ export function updateWorld(
     timeMs: world.timeMs + clampedDtMs,
     nextId,
     enemyDirX: dirX,
+    enemyFireCooldownRemainingMs,
+    playerLives,
     ship: {
       ...world.ship,
       pos: { x: boundedShipX, z: world.ship.pos.z },
       fireCooldownMs: shipCooldown,
     },
     enemies: enemiesAfterHits,
-    bullets: bulletsAfterHits,
+    bullets: bulletsAfterShipHits,
   };
 
   return { world: nextWorld, events };

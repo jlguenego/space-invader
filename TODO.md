@@ -158,7 +158,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Exposer le réglage confort ; Livrable: règle appliquée à la vitesse joueur ; Acceptation: preset change la vitesse de façon observable ; Deps: id019, id026 ; Docs: /docs/04-specification-fonctionnelle.md → “Sensibilité”, /docs/05-decisions-structurantes.md → “D-09”.
 
-- [ ] **id028** **(P0)** _(M)_ Implémenter la difficulté (facile/normal/difficile) selon paramètres MVP
+- [x] **id028** **(P0)** _(M)_ Implémenter la difficulté (facile/normal/difficile) selon paramètres MVP
 
   - But: Appliquer les presets validés ; Livrable: règles (vitesse ennemis/cooldown tirs/vies) ; Acceptation: facile/normal/difficile appliquent 0.75/1.00/1.30, 1.35/1.00/0.75, 4/3/2 ; Deps: id026, id019 ; Docs: /docs/04-specification-fonctionnelle.md → “5.1 Difficulté”, /clarifications/10-parametres-difficulte.md → “Décision actée”.
 
