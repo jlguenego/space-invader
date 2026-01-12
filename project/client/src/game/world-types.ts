@@ -2,6 +2,8 @@ import type { InputState } from './input-manager';
 
 export type Vec2 = { x: number; z: number };
 
+export type EnemyType = 'standard' | 'rapide' | 'tank' | 'elite';
+
 export type Aabb = {
   center: Vec2;
   halfSize: { x: number; z: number };
@@ -16,6 +18,7 @@ export type Ship = {
 
 export type Enemy = {
   id: string;
+  enemyType: EnemyType;
   pos: Vec2;
   halfSize: { x: number; z: number };
   alive: boolean;
@@ -76,7 +79,20 @@ export type World = {
 };
 
 export type WorldEvent =
-  | { type: 'ENEMY_DESTROYED'; enemyId: string; byBulletId: string }
+  | {
+      type: 'PLAYER_SHOT';
+      bulletId: string;
+    }
+  | {
+      type: 'PLAYER_HIT';
+      remainingLives: number;
+    }
+  | {
+      type: 'ENEMY_DESTROYED';
+      enemyId: string;
+      enemyType: EnemyType;
+      byBulletId: string;
+    }
   | {
       type: 'GAME_OVER';
       reason: 'enemy_reached_line' | 'all_enemies_destroyed' | 'ship_destroyed';

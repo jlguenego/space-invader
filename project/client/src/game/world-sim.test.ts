@@ -27,16 +27,19 @@ describe('world-sim', () => {
     let result = updateWorld(world, { ...DEFAULT_INPUT_STATE, fire: true }, 16);
     world = result.world;
     expect(world.bullets.length).toBe(1);
+    expect(result.events.some((e) => e.type === 'PLAYER_SHOT')).toBe(true);
 
     // Still cooling down: no new bullet.
     result = updateWorld(world, { ...DEFAULT_INPUT_STATE, fire: true }, 100);
     world = result.world;
     expect(world.bullets.length).toBe(1);
+    expect(result.events.some((e) => e.type === 'PLAYER_SHOT')).toBe(false);
 
     // Cooldown elapsed: next bullet.
     result = updateWorld(world, { ...DEFAULT_INPUT_STATE, fire: true }, 120);
     world = result.world;
     expect(world.bullets.length).toBe(2);
+    expect(result.events.some((e) => e.type === 'PLAYER_SHOT')).toBe(true);
   });
 
   test('player bullet destroys an enemy on collision', () => {
@@ -159,6 +162,7 @@ describe('world-sim', () => {
 
     const r = updateWorld(world, DEFAULT_INPUT_STATE, 16);
     expect(r.world.playerLives).toBe(0);
+    expect(r.events.some((e) => e.type === 'PLAYER_HIT' && e.remainingLives === 0)).toBe(true);
     expect(r.events.some((e) => e.type === 'GAME_OVER' && e.reason === 'ship_destroyed')).toBe(
       true,
     );

@@ -45,8 +45,6 @@ export function App(): JSX.Element {
 
   if (!engineRef.current) {
     engineRef.current = createGameEngine({
-      // Temporary MVP pacing (kept until id029 scoring rules).
-      scorePerSecond: 20,
       maxStepMs: 100,
       getInputState: () =>
         inputRef.current?.getState() ?? {
@@ -54,7 +52,7 @@ export function App(): JSX.Element {
           fire: false,
         },
       onScoreDelta: (amount) => dispatch({ type: 'INCREMENT_SCORE', amount }),
-      onGameOver: () => dispatch({ type: 'GAME_OVER' }),
+      onGameOver: (finalScore) => dispatch({ type: 'GAME_OVER', finalScore }),
     });
   }
 

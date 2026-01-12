@@ -3,6 +3,7 @@ import {
   DEFAULT_INPUT_STATE,
   type Bullet,
   type Enemy,
+  type EnemyType,
   type Vec2,
   type World,
   type WorldConfig,
@@ -71,6 +72,13 @@ function createBulletId(nextId: number): string {
   return `b_${nextId}`;
 }
 
+function enemyTypeFromRow(row: number): EnemyType {
+  if (row <= 0) return 'standard';
+  if (row === 1) return 'rapide';
+  if (row === 2) return 'tank';
+  return 'elite';
+}
+
 function pickEnemyShooter(enemies: Enemy[], shipX: number): Enemy | null {
   // Deterministic: closest enemy to the ship on the lowest alive row.
   // (max z = closest to ship since ship is at positive z)
@@ -112,10 +120,12 @@ export function createInitialWorld(config: WorldConfig = DEFAULT_WORLD_CONFIG): 
 
   const { rows, cols, spacingX, spacingZ, origin } = config.enemySpawn;
   for (let row = 0; row < rows; row++) {
+    const enemyType = enemyTypeFromRow(row);
     for (let col = 0; col < cols; col++) {
       const id = createEnemyId(nextId++);
       enemies.push({
         id,
+        enemyType,
         pos: {
           x: origin.x + col * spacingX,
           z: origin.z + row * spacingZ,
@@ -181,6 +191,7 @@ export function updateWorld(
       halfSize: { x: 0.12, z: 0.28 },
       alive: true,
     });
+    events.push({ type: 'PLAYER_SHOT', bulletId });
     shipCooldown = world.config.shipFireCooldownMs;
   }
 
@@ -295,17 +306,24 @@ export function updateWorld(
     }
 
     let hitEnemyId: string | null = null;
+    let hitEnemyType: EnemyType | null = null;
     for (const enemy of aliveEnemiesById.values()) {
       if (collidedEnemyIds.has(enemy.id)) continue;
       if (intersectsAabb(bullet.pos, bullet.halfSize, enemy.pos, enemy.halfSize)) {
         hitEnemyId = enemy.id;
+        hitEnemyType = enemy.enemyType;
         break;
       }
     }
 
     if (hitEnemyId) {
       collidedEnemyIds.add(hitEnemyId);
-      events.push({ type: 'ENEMY_DESTROYED', enemyId: hitEnemyId, byBulletId: bullet.id });
+      events.push({
+        type: 'ENEMY_DESTROYED',
+        enemyId: hitEnemyId,
+        enemyType: hitEnemyType ?? 'standard',
+        byBulletId: bullet.id,
+      });
       continue; // bullet consumed
     }
 
@@ -335,6 +353,7 @@ export function updateWorld(
 
     if (hitShip) {
       playerLives = Math.max(0, playerLives - 1);
+      events.push({ type: 'PLAYER_HIT', remainingLives: playerLives });
       continue;
     }
 

@@ -1,6 +1,14 @@
 import type { InputState } from './input-manager';
 import { DEFAULT_INPUT_STATE, type World, type WorldConfig } from './world-types';
 import { createInitialWorld, DEFAULT_WORLD_CONFIG, updateWorld } from './world-sim';
+import {
+  applyEnemyDestroyed,
+  applyPlayerHit,
+  applyPlayerShot,
+  createInitialScoreState,
+  finalizeScore,
+  type ScoreState,
+} from './scoring';
 
 export type GameEngineStatus = 'idle' | 'running' | 'paused' | 'gameover';
 
@@ -65,6 +73,7 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
 
   let state: GameEngineState = { status: 'idle', score: 0 };
   let scoreRemainder = 0;
+  let scoreState: ScoreState = createInitialScoreState();
 
   let desiredLoopRunning = false;
   let rafId: number | null = null;
@@ -132,30 +141,61 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
     world = result.world;
     opts.onWorldChanged(world);
 
+    let scoreDelta = 0;
+    let gameOverTriggered = false;
+
     for (const e of result.events) {
-      if (e.type === 'GAME_OVER') {
-        triggerGameOver();
-        return;
+      if (e.type === 'PLAYER_SHOT') {
+        scoreState = applyPlayerShot(scoreState);
+        continue;
       }
+
+      if (e.type === 'PLAYER_HIT') {
+        scoreState = applyPlayerHit(scoreState);
+        continue;
+      }
+
+      if (e.type === 'ENEMY_DESTROYED') {
+        const r = applyEnemyDestroyed(scoreState, { enemyType: e.enemyType, nowMs: world.timeMs });
+        scoreState = r.next;
+        scoreDelta += r.scoreDelta;
+        continue;
+      }
+
+      if (e.type === 'GAME_OVER') {
+        gameOverTriggered = true;
+        continue;
+      }
+
+      const _exhaustive: never = e;
+      void _exhaustive;
     }
 
-    if (opts.scorePerSecond <= 0) return;
+    // Optional legacy pacing (used by early MVP UI/tests). Default is 0.
+    if (opts.scorePerSecond > 0) {
+      const points = (opts.scorePerSecond * clampedMs) / 1000;
+      const total = scoreRemainder + points;
+      const delta = Math.floor(total);
+      scoreRemainder = total - delta;
+      if (delta > 0) scoreDelta += delta;
+    }
 
-    const points = (opts.scorePerSecond * clampedMs) / 1000;
-    const total = scoreRemainder + points;
-    const delta = Math.floor(total);
-    scoreRemainder = total - delta;
+    if (scoreDelta > 0) {
+      const nextScore = state.score + scoreDelta;
+      emitState({ status: 'running', score: nextScore });
+      emitScoreDelta(scoreDelta);
+      emitScoreChanged(nextScore);
+    }
 
-    if (delta <= 0) return;
-
-    const nextScore = state.score + delta;
-    emitState({ status: 'running', score: nextScore });
-    emitScoreDelta(delta);
-    emitScoreChanged(nextScore);
+    if (gameOverTriggered) {
+      triggerGameOver();
+      return;
+    }
   }
 
   function startNewGame(): void {
     scoreRemainder = 0;
+    scoreState = createInitialScoreState();
     world = createInitialWorld(currentWorldConfig);
     opts.onWorldChanged(world);
     emitState({ status: 'running', score: 0 });
@@ -188,7 +228,8 @@ export function createGameEngine(options?: GameEngineOptions): GameEngine {
   function triggerGameOver(): void {
     if (state.status !== 'running' && state.status !== 'paused') return;
 
-    const finalScore = state.score;
+    const fin = finalizeScore(scoreState);
+    const finalScore = state.score + fin.precisionBonus;
     emitState({ status: 'gameover', score: finalScore, finalScore });
     opts.onGameOver(finalScore);
 

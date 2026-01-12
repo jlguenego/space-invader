@@ -18,10 +18,10 @@ describe('uiReducer', () => {
     state = uiReducer(state, { type: 'TOGGLE_PAUSE' });
     expect(state).toEqual({ screen: 'playing', score: 10 });
 
-    state = uiReducer(state, { type: 'GAME_OVER' });
+    state = uiReducer(state, { type: 'GAME_OVER', finalScore: 123 });
     expect(state.screen).toBe('game-over');
     if (state.screen !== 'game-over') throw new Error('unreachable');
-    expect(state.finalScore).toBe(10);
+    expect(state.finalScore).toBe(123);
 
     state = uiReducer(state, { type: 'OPEN_LEADERBOARD' });
     expect(state).toEqual({

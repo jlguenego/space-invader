@@ -162,7 +162,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Appliquer les presets validés ; Livrable: règles (vitesse ennemis/cooldown tirs/vies) ; Acceptation: facile/normal/difficile appliquent 0.75/1.00/1.30, 1.35/1.00/0.75, 4/3/2 ; Deps: id026, id019 ; Docs: /docs/04-specification-fonctionnelle.md → “5.1 Difficulté”, /clarifications/10-parametres-difficulte.md → “Décision actée”.
 
-- [ ] **id029** **(P0)** _(M)_ Implémenter le scoring (ennemis + bonus + multiplicateurs)
+- [x] **id029** **(P0)** _(M)_ Implémenter le scoring (ennemis + bonus + multiplicateurs)
 
   - But: Score conforme aux règles ; Livrable: module `Scoring` (fonctions pures) + tests d’exemples ; Acceptation: score en jeu + score final, tests couvrent barème/multiplicateurs ; Deps: id026, id002, id003 ; Docs: /docs/04-specification-fonctionnelle.md → “Score / Bonus / Multiplicateurs”, /clarifications/08-bareme-bonus.md → “Barème”, /clarifications/09-multiplicateurs-declencheurs-durees.md → “Règles”.
 

@@ -35,7 +35,7 @@ export type UiAction =
   | { type: 'START_GAME' }
   | { type: 'INCREMENT_SCORE'; amount: number }
   | { type: 'TOGGLE_PAUSE' }
-  | { type: 'GAME_OVER' }
+  | { type: 'GAME_OVER'; finalScore: number }
   | { type: 'OPEN_LEADERBOARD' }
   | { type: 'LEADERBOARD_LOAD_START' }
   | { type: 'LEADERBOARD_LOAD_SUCCESS'; leaderboard: LeaderboardDay }
@@ -70,7 +70,7 @@ export function uiReducer(state: UiState, action: UiAction): UiState {
       if (state.screen !== 'playing' && state.screen !== 'paused') return state;
       return {
         screen: 'game-over',
-        finalScore: state.score,
+        finalScore: action.finalScore,
         scoreSave: { status: 'idle', message: null },
       };
     }
