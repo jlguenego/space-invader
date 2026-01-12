@@ -8,10 +8,17 @@ type HowlerModule = {
       resume?: () => Promise<unknown>;
     };
   };
-  Howl: new (options: unknown) => {
-    play: () => unknown;
-  };
+  Howl: new (options: unknown) => any;
 };
+
+function isDebugAudio(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem('space-invaders:debug-audio') === '1';
+  } catch {
+    return false;
+  }
+}
 
 export function createLazyHowlerAdapter(): HowlerLike {
   let loaded: HowlerLike | null = null;
@@ -41,7 +48,37 @@ export function createLazyHowlerAdapter(): HowlerLike {
           createHowl: async (options: HowlOptions): Promise<HowlLike | null> => {
             // createHowl is only valid in a DOM-capable environment.
             if (typeof window === 'undefined') return null;
-            const howl = new Howl(options);
+
+            if (isDebugAudio()) {
+              console.info('[audio] createHowl', { src: options.src, html5: options.html5 });
+            }
+
+            let howl: any;
+            const onloaderror = (soundId: unknown, error: unknown) => {
+              console.warn('Howler loaderror', { soundId, error, src: options.src });
+            };
+            const onplayerror = (soundId: unknown, error: unknown) => {
+              console.warn('Howler playerror', { soundId, error, src: options.src });
+
+              // Howler can emit playerror when audio is locked; retry once unlocked.
+              try {
+                howl?.once?.('unlock', () => {
+                  try {
+                    howl?.play?.();
+                  } catch {
+                    // noop
+                  }
+                });
+              } catch {
+                // noop
+              }
+            };
+
+            howl = new Howl({
+              ...options,
+              onloaderror,
+              onplayerror,
+            });
             return {
               play: () => howl.play(),
             };

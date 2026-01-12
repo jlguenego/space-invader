@@ -20,17 +20,33 @@ export type CreateAudioManagerOptions = {
   howler?: HowlerLike;
 };
 
+function isDebugAudio(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem('space-invaders:debug-audio') === '1';
+  } catch {
+    return false;
+  }
+}
+
 const SFX_SOURCES: Record<SfxKey, string[]> = {
-  'ui-click': ['/assets/audio/ui-click.ogg', '/assets/audio/ui-click.mp3'],
-  'ui-back': ['/assets/audio/ui-back.ogg', '/assets/audio/ui-back.mp3'],
-  'player-shot': ['/assets/audio/player-shot.ogg', '/assets/audio/player-shot.mp3'],
-  'enemy-explosion': ['/assets/audio/enemy-explosion.ogg', '/assets/audio/enemy-explosion.mp3'],
-  'game-over': ['/assets/audio/game-over.ogg', '/assets/audio/game-over.mp3'],
+  // Important: Howler picks the first playable format, and will not fallback to the next
+  // source if the chosen one 404s. Put mp3 first so the game remains audible even if
+  // ogg files are missing during development.
+  'ui-click': ['/assets/audio/ui-click.mp3', '/assets/audio/ui-click.ogg'],
+  'ui-back': ['/assets/audio/ui-back.mp3', '/assets/audio/ui-back.ogg'],
+  'player-shot': ['/assets/audio/player-shot.mp3', '/assets/audio/player-shot.ogg'],
+  'enemy-explosion': ['/assets/audio/enemy-explosion.mp3', '/assets/audio/enemy-explosion.ogg'],
+  'game-over': ['/assets/audio/game-over.mp3', '/assets/audio/game-over.ogg'],
 };
 
 export function createAudioManager(options: CreateAudioManagerOptions = {}): AudioManager {
   const howler = options.howler;
   let muted: boolean | null = null;
+
+  let warnedMuted = false;
+  let warnedNoWindow = false;
+  let warnedUnlockFailed = false;
 
   const sfxCache = new Map<SfxKey, Promise<{ play: () => unknown } | null>>();
 
@@ -59,7 +75,7 @@ export function createAudioManager(options: CreateAudioManagerOptions = {}): Aud
     const p = (async () => {
       try {
         const src = SFX_SOURCES[key];
-        const howl = await howler?.createHowl?.({ src, preload: true });
+        const howl = await howler?.createHowl?.({ src, preload: true, html5: true });
         return howl ?? null;
       } catch (error) {
         console.warn('Failed to load SFX', { key }, error);
@@ -72,14 +88,57 @@ export function createAudioManager(options: CreateAudioManagerOptions = {}): Aud
   }
 
   async function playSfxAsync(key: SfxKey): Promise<void> {
-    if (muted ?? false) return;
+    if (isDebugAudio()) {
+      console.info('[audio] playSfx', { key, muted: muted ?? false, unlockState });
+    }
+
+    if (muted ?? false) {
+      if (!warnedMuted && isDebugAudio()) {
+        warnedMuted = true;
+        console.info('[audio] skipped: muted');
+      }
+      return;
+    }
 
     // Important for Bun tests / non-DOM environments: do not attempt to load Howler.
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      if (!warnedNoWindow && isDebugAudio()) {
+        warnedNoWindow = true;
+        console.info('[audio] skipped: no window');
+      }
+      return;
+    }
+
+    // Some browsers can miss the initial unlock attempt (timing, focus, etc.).
+    // As a fallback, try unlocking on demand when a user-driven action triggers a sound.
+    if (unlockState === 'locked') {
+      try {
+        const ok = (await howler?.tryUnlock?.()) ?? false;
+        unlockState = ok ? 'unlocked' : 'failed';
+      } catch (error) {
+        unlockState = 'failed';
+        console.warn('Failed to unlock audio while playing SFX', error);
+      }
+
+      if (unlockState !== 'unlocked') {
+        if (!warnedUnlockFailed && isDebugAudio()) {
+          warnedUnlockFailed = true;
+          console.warn('[audio] skipped: unlock failed');
+        }
+        return;
+      }
+    }
 
     try {
       const handle = await getSfxHandle(key);
-      handle?.play();
+      if (!handle) {
+        console.warn('SFX handle is null (missing file? Howler failed?)', {
+          key,
+          src: SFX_SOURCES[key],
+        });
+        return;
+      }
+      handle.play();
     } catch (error) {
       console.warn('Failed to play SFX', { key }, error);
     }

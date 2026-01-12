@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 
 import type { Preferences } from './storage/preferences';
 import { loadPreferences, savePreferences } from './storage/preferences';
@@ -99,7 +99,8 @@ export function App(): JSX.Element {
   }, [preferences.mute]);
 
   // Attempt audio unlock on first user interaction (pointerdown / keydown).
-  useEffect(() => {
+  // useLayoutEffect reduces the risk of missing the very first click after initial paint.
+  useLayoutEffect(() => {
     const dispose = audioManager.registerUnlockOnFirstInteraction(undefined, setAudioUnlockState);
     return () => dispose();
   }, []);

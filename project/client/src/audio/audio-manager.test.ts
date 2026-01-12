@@ -129,7 +129,7 @@ describe('audio-manager', () => {
     // Provide a window so playSfxAsync does not early-return.
     (globalThis as unknown as { window?: unknown }).window = {};
 
-    const created: Array<{ src: string[]; preload?: boolean }> = [];
+    const created: Array<{ src: string[]; preload?: boolean; html5?: boolean }> = [];
     let plays = 0;
 
     const audio = createAudioManager({
@@ -137,7 +137,7 @@ describe('audio-manager', () => {
         mute: () => {},
         tryUnlock: async () => true,
         createHowl: async (options) => {
-          created.push({ src: options.src, preload: options.preload });
+          created.push({ src: options.src, preload: options.preload, html5: options.html5 });
           return { play: () => (plays += 1) };
         },
       },
@@ -150,9 +150,10 @@ describe('audio-manager', () => {
 
     expect(created).toHaveLength(1);
     expect(created[0]?.src).toEqual([
-      '/assets/audio/player-shot.ogg',
       '/assets/audio/player-shot.mp3',
+      '/assets/audio/player-shot.ogg',
     ]);
+    expect(created[0]?.html5).toBe(true);
     expect(plays).toBe(2);
 
     if (typeof previousWindow === 'undefined') {
