@@ -62,7 +62,12 @@ Le prompt généré doit **obligatoirement** contenir ces sections :
 
   Le générateur de prompt (ce document) **ne coche pas** le `TODO.md` au moment de la génération ; il impose que la case soit cochée **à la fin** de l’exécution réelle de la tâche.
 
-- Ecriture inclusive interdite.
+## Style d'écriture
+
+- Français technique standard
+- Masculin neutre
+- Aucune écriture inclusive
+- Pas de doublets (ex. ingénieur·e, expert(e))
 
 ## Clarifications (gate obligatoire)
 

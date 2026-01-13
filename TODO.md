@@ -237,12 +237,12 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
     - `sudo ufw status verbose` → uniquement SSH + 80/tcp + 443/tcp
     - `sudo certbot renew --dry-run` → succès + `certbot.timer` présent
 
-- [ ] **id044** **(P0)** _(M)_ Ajouter GitHub Actions CI (install, lint/typecheck, tests, build, artefact)
+- [x] **id044** **(P0)** _(M)_ Ajouter GitHub Actions CI (install, lint/typecheck, tests, build, artefact)
   - But: Automatiser la qualité ; Livrable: workflow CI (vérif Bun 1.3.5, cache deps, tests, build, artefact) ; Acceptation: PR échoue si Bun/version/tests/lint échouent ; Deps: id008, id037 ; Docs: /docs/09-cicd-et-deploiement.md → “Pipeline CI (proposition)”, /docs/05-decisions-structurantes.md → “D-19”.
 
 ### Épique J — Exploitation & maintenance (runbook MVP)
 
-- [ ] **id045** **(P0)** _(S)_ Documenter la procédure de déploiement (sans perte de données)
+- [x] **id045** **(P0)** _(S)_ Documenter la procédure de déploiement (sans perte de données)
 
   - But: Déploiement reproductible sur VPS ; Livrable: `project/docs/deploy.md` ; Acceptation: déployer sans écraser `server/data/` ; Deps: id042, id043 ; Docs: /docs/10-exploitation-et-maintenance.md → “Procédure de déploiement”, /docs/09-cicd-et-deploiement.md → “Déploiement”.
 
