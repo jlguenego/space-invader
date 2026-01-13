@@ -226,9 +226,16 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Permettre ACME HTTP-01 + accès public ; Livrable: enregistrements DNS (A/AAAA) + note courte dans doc déploiement ; Acceptation: résolution OK et port 80 atteint le VPS ; Deps: id001 ; Docs: /clarifications/07-https-sans-domaine.md → “Décision”, /docs/09-cicd-et-deploiement.md → “Stratégie HTTPS”.
 
-- [ ] **id043** **(P0)** _(M)_ Mettre en place la terminaison HTTPS (Nginx+Certbot) selon décision id001
+- [x] **id043** **(P0)** _(M)_ Mettre en place la terminaison HTTPS (Nginx+Certbot) selon décision id001
 
   - But: Respecter HTTPS requis ; Livrable: Nginx reverse-proxy + Certbot/LE + HTTP→HTTPS + HSTS + UFW + doc ; Acceptation: HTTPS OK, HTTP redirige, proxy `127.0.0.1:9999`, renouvellement auto ; Deps: id001, id042, id054 ; Docs: /docs/09-cicd-et-deploiement.md → “Stratégie HTTPS”, /docs/10-exploitation-et-maintenance.md → “Sécurité (minimum)”, /clarifications/07-https-sans-domaine.md → “Procédure”.
+
+  - Validation (à exécuter sur le VPS) : suivre `project/docs/vps-debian-nginx-ufw.md` et vérifier :
+    - `curl -I http://space-invader.jlg-consulting.com/` → redirection vers HTTPS
+    - `curl -I https://space-invader.jlg-consulting.com/` → OK sans erreur TLS
+    - `curl -I https://space-invader.jlg-consulting.com/ | grep -i strict-transport-security` → `max-age=86400`
+    - `sudo ufw status verbose` → uniquement SSH + 80/tcp + 443/tcp
+    - `sudo certbot renew --dry-run` → succès + `certbot.timer` présent
 
 - [ ] **id044** **(P0)** _(M)_ Ajouter GitHub Actions CI (install, lint/typecheck, tests, build, artefact)
   - But: Automatiser la qualité ; Livrable: workflow CI (vérif Bun 1.3.5, cache deps, tests, build, artefact) ; Acceptation: PR échoue si Bun/version/tests/lint échouent ; Deps: id008, id037 ; Docs: /docs/09-cicd-et-deploiement.md → “Pipeline CI (proposition)”, /docs/05-decisions-structurantes.md → “D-19”.

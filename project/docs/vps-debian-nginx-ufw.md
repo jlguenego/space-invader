@@ -177,48 +177,33 @@ Avant d’obtenir le certificat, ne mets pas un vhost `listen 443 ssl` “final�
 
 Étape A — créer un vhost **HTTP-only** (safe) pour permettre le challenge HTTP-01 :
 
-- `sudo tee /etc/nginx/sites-available/space-invader.jlg-consulting.com > /dev/null <<'EOF'
-  server {
+```bash
+sudo tee /etc/nginx/sites-available/space-invader.jlg-consulting.com > /dev/null <<'EOF'
+server {
   listen 80;
   listen [::]:80;
 
   server_name space-invader.jlg-consulting.com;
 
+  # ACME HTTP-01 challenge (must stay on HTTP)
   location ^~ /.well-known/acme-challenge/ {
-  root /var/www/letsencrypt;
-  default_type "text/plain";
-  try_files $uri =404;
+    root /var/www/letsencrypt;
+    default_type "text/plain";
+    try_files $uri =404;
   }
 
-  location / { # temporaire : le HTTPS sera activé par Certbot (puis on appliquera le template du repo)
-  return 200 "nginx ok (http)";
+  # Temporaire : le HTTPS sera activé par Certbot.
+  location / {
+    return 200 "nginx ok (http)";
   }
-  }
-  EOF`
+}
+EOF
+```
 
 Étape B — activer le site et recharger Nginx :
 
 - `sudo ln -sf /etc/nginx/sites-available/space-invader.jlg-consulting.com /etc/nginx/sites-enabled/space-invader.jlg-consulting.com`
 - `sudo rm -f /etc/nginx/sites-enabled/default`
-- `sudo nginx -t`
-- `sudo systemctl reload nginx`
-
-Étape C — après obtention du certificat (voir section suivante), appliquer le template versionné du repo (config finale HTTP→HTTPS + reverse-proxy) :
-
-- `sudo cp -f ~/space-invader/project/docs/nginx/space-invader.jlg-consulting.com.conf /etc/nginx/sites-available/space-invader.jlg-consulting.com`
-- `sudo nginx -t`
-- `sudo systemctl reload nginx`
-
-3. Activer le site
-
-- `sudo ln -sf /etc/nginx/sites-available/space-invader.jlg-consulting.com /etc/nginx/sites-enabled/space-invader.jlg-consulting.com`
-
-Optionnel (recommandé) : désactiver le site par défaut s’il entre en conflit
-
-- `sudo rm -f /etc/nginx/sites-enabled/default`
-
-4. Valider la config et recharger
-
 - `sudo nginx -t`
 - `sudo systemctl reload nginx`
 
@@ -279,6 +264,119 @@ Si tu dois (re)appliquer :
 - `sudo ufw enable`
 
 ### 6bis.6) Validation depuis l’extérieur (checklist)
+
+Si tu veux automatiser la validation directement depuis le VPS (et me coller le résultat), utilise le script ci-dessous.
+
+Remarque : ce script valide le comportement via le hostname public depuis le VPS lui-même. C’est généralement suffisant pour valider la conf Nginx/Certbot/HSTS. Pour une validation “100% externe”, exécute aussi les `curl` depuis ton poste.
+
+#### Script Bash de validation (à lancer sur le VPS)
+
+```bash
+cat > /tmp/space-invader-id043-validate.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+HOSTNAME="space-invader.jlg-consulting.com"
+UPSTREAM="http://127.0.0.1:9999"
+HSTS_EXPECTED="max-age=86400"
+
+echo "== id043 validate =="
+echo "hostname=${HOSTNAME}"
+echo "upstream=${UPSTREAM}"
+echo
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "ERROR: missing command: $1" >&2
+    exit 2
+  }
+}
+
+for cmd in curl grep sed awk ss openssl systemctl; do
+  need_cmd "$cmd"
+done
+
+echo "[1/9] DNS (A record)"
+if command -v dig >/dev/null 2>&1; then
+  dig +short "$HOSTNAME" A | sed -n '1,5p'
+else
+  getent ahostsv4 "$HOSTNAME" | awk '{print $1}' | head -n 5 || true
+fi
+echo
+
+echo "[2/9] Local upstream reachable (${UPSTREAM})"
+curl -fsSI "$UPSTREAM/" | sed -n '1,20p'
+echo
+
+echo "[3/10] Docker port binding sanity (9999 should be local-only)"
+ss_out="$(ss -lntp | grep ':9999 ' || true)"
+echo "$ss_out"
+if ! echo "$ss_out" | grep -q '127\.0\.0\.1:9999'; then
+  echo "ERROR: 9999 is not bound to 127.0.0.1 (should not be public)" >&2
+  exit 1
+fi
+echo
+
+echo "[4/10] Nginx config test + status"
+sudo nginx -t
+sudo systemctl is-active --quiet nginx && echo "nginx: active" || (sudo systemctl status nginx --no-pager; exit 1)
+echo
+
+echo "[5/10] HTTP should redirect to HTTPS"
+http_headers="$(curl -fsSI "http://$HOSTNAME/" || true)"
+echo "$http_headers" | sed -n '1,20p'
+echo "$http_headers" | grep -Eqi '^HTTP/.* (301|302|307|308) ' || { echo "ERROR: HTTP is not redirecting" >&2; exit 1; }
+echo "$http_headers" | grep -Eqi "^location: https://$HOSTNAME(/|$)" || echo "WARN: Location header does not match exact host (may still be OK)"
+echo
+
+echo "[6/10] HTTPS reachable (no TLS error)"
+https_headers="$(curl -fsSI "https://$HOSTNAME/" )"
+echo "$https_headers" | sed -n '1,30p'
+echo
+
+echo "[7/10] HSTS header present (prudent)"
+hsts_line="$(echo "$https_headers" | tr -d '\r' | grep -i '^strict-transport-security:' || true)"
+if [[ -z "$hsts_line" ]]; then
+  echo "ERROR: Strict-Transport-Security header missing" >&2
+  exit 1
+fi
+echo "$hsts_line"
+echo "$hsts_line" | grep -q "$HSTS_EXPECTED" || { echo "ERROR: HSTS does not include $HSTS_EXPECTED" >&2; exit 1; }
+echo "$hsts_line" | grep -qi 'preload' && { echo "ERROR: HSTS preload must NOT be enabled" >&2; exit 1; } || true
+echo
+
+echo "[8/10] Certificate dates (openssl)"
+echo | openssl s_client -connect "$HOSTNAME:443" -servername "$HOSTNAME" 2>/dev/null \
+  | openssl x509 -noout -subject -issuer -dates
+echo
+
+echo "[9/10] UFW (SSH + 80/tcp + 443/tcp only)"
+if command -v ufw >/dev/null 2>&1; then
+  sudo ufw status verbose
+else
+  echo "WARN: ufw is not installed"
+fi
+echo
+
+echo "[10/10] Certbot renew dry-run + timer"
+if command -v certbot >/dev/null 2>&1; then
+  sudo certbot renew --dry-run
+  systemctl list-timers --all | grep -i certbot || true
+  systemctl status certbot.timer --no-pager || true
+else
+  echo "WARN: certbot is not installed"
+fi
+
+echo
+echo "SUCCESS: id043 validation script completed"
+EOF
+
+chmod +x /tmp/space-invader-id043-validate.sh
+sudo -v
+/tmp/space-invader-id043-validate.sh
+```
+
+Si tout est vert, tu peux me coller la sortie complète et je coche `id043`.
 
 Depuis une machine extérieure :
 
