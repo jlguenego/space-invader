@@ -372,7 +372,6 @@ echo "SUCCESS: id043 validation script completed"
 EOF
 
 chmod +x /tmp/space-invader-id043-validate.sh
-sudo -v
 /tmp/space-invader-id043-validate.sh
 ```
 
