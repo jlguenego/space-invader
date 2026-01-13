@@ -1,5 +1,10 @@
 import type { HowlLike, HowlerLike, HowlOptions } from './howler-like';
 
+type HowlInstance = {
+  play: () => unknown;
+  once?: (event: string, handler: () => void) => unknown;
+};
+
 type HowlerModule = {
   Howler: {
     mute: (muted: boolean) => void;
@@ -8,7 +13,7 @@ type HowlerModule = {
       resume?: () => Promise<unknown>;
     };
   };
-  Howl: new (options: unknown) => any;
+  Howl: new (options: unknown) => HowlInstance;
 };
 
 function isDebugAudio(): boolean {
@@ -53,7 +58,7 @@ export function createLazyHowlerAdapter(): HowlerLike {
               console.info('[audio] createHowl', { src: options.src, html5: options.html5 });
             }
 
-            let howl: any;
+            let howl: HowlInstance | null = null;
             const onloaderror = (soundId: unknown, error: unknown) => {
               console.warn('Howler loaderror', { soundId, error, src: options.src });
             };
@@ -80,7 +85,7 @@ export function createLazyHowlerAdapter(): HowlerLike {
               onplayerror,
             });
             return {
-              play: () => howl.play(),
+              play: () => howl?.play() ?? null,
             };
           },
         };

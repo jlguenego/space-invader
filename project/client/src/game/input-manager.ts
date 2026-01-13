@@ -21,13 +21,6 @@ export type InputManagerOptions = {
   onToggleMute?: () => void;
 };
 
-const DEFAULT_MOVEMENT: MovementState = Object.freeze({
-  left: false,
-  right: false,
-  up: false,
-  down: false,
-});
-
 function isHTMLElement(value: unknown): value is HTMLElement {
   return typeof HTMLElement !== 'undefined' && value instanceof HTMLElement;
 }
