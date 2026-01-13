@@ -124,6 +124,190 @@ Tester le renouvellement :
 
 - `certbot renew --dry-run`
 
+## 6bis) Terminaison HTTPS + reverse proxy vers 127.0.0.1:9999 (production)
+
+Objectif :
+
+- `http://space-invader.jlg-consulting.com` redirige vers `https://space-invader.jlg-consulting.com`
+- `https://space-invader.jlg-consulting.com` reverse-proxy vers l’app sur `http://127.0.0.1:9999`
+- Certificat valide Let’s Encrypt via **Certbot** (ACME **HTTP-01**)
+- HSTS activé avec une valeur prudente (ex: `max-age=86400`, sans `preload`)
+- UFW strict : SSH + 80/tcp + 443/tcp uniquement
+
+### 6bis.1) Pré-checks indispensables
+
+1. DNS : vérifier que le hostname résout vers l’IP du VPS
+
+Depuis une machine extérieure :
+
+- `nslookup -type=A space-invader.jlg-consulting.com 1.1.1.1`
+
+Si tu as un AAAA, vérifier qu’IPv6 est réellement routée, sinon supprimer le AAAA.
+
+2. Réseau : vérifier que TCP:80 répond depuis Internet (pré-requis ACME HTTP-01)
+
+- `curl -I http://space-invader.jlg-consulting.com/`
+
+Toute réponse HTTP (`200`, `301`, `404`) est acceptable ; le point clé est que **TCP:80 répond**.
+
+3. App locale : vérifier que l’app écoute en local sur le VPS
+
+Sur le VPS :
+
+- `curl -I http://127.0.0.1:9999/`
+
+Si ça ne répond pas, déployer/démarrer l’app d’abord (Docker Compose) avant de continuer.
+
+### 6bis.2) Créer le vhost Nginx (HTTP + HTTPS) pour le reverse proxy
+
+Sur le VPS :
+
+1. Créer le dossier webroot ACME (sert uniquement le challenge HTTP-01, même après redirection)
+
+- `sudo mkdir -p /var/www/letsencrypt/.well-known/acme-challenge`
+- `sudo chown -R www-data:www-data /var/www/letsencrypt`
+
+2. Créer le site Nginx
+
+Créer `/etc/nginx/sites-available/space-invader.jlg-consulting.com` en te basant sur le template versionné du repo :
+
+- `project/docs/nginx/space-invader.jlg-consulting.com.conf`
+
+Important : avant obtention du certificat, tu peux laisser le bloc 443 présent mais inactif, ou le laisser tel quel et obtenir le cert ensuite.
+
+3. Activer le site
+
+- `sudo ln -sf /etc/nginx/sites-available/space-invader.jlg-consulting.com /etc/nginx/sites-enabled/space-invader.jlg-consulting.com`
+
+Optionnel (recommandé) : désactiver le site par défaut s’il entre en conflit
+
+- `sudo rm -f /etc/nginx/sites-enabled/default`
+
+4. Valider la config et recharger
+
+- `sudo nginx -t`
+- `sudo systemctl reload nginx`
+
+### 6bis.3) Obtenir le certificat Let’s Encrypt (Certbot)
+
+Installer Certbot + plugin Nginx (si pas déjà fait) :
+
+- `sudo apt update`
+- `sudo apt install -y certbot python3-certbot-nginx`
+
+Obtenir et installer le certificat (ACME HTTP-01) :
+
+- `sudo certbot --nginx -d space-invader.jlg-consulting.com`
+
+Notes :
+
+- Certbot peut proposer d’activer la redirection HTTP→HTTPS : accepter (la config du template la fait déjà, mais Certbot peut la réécrire).
+- Si Certbot modifie la config, re-valider ensuite.
+
+Vérifier :
+
+- `sudo nginx -t`
+- `sudo systemctl reload nginx`
+- `sudo certbot certificates`
+
+### 6bis.4) Activer HSTS (valeur prudente)
+
+Dans le bloc `server` 443 du vhost, ajouter (ou vérifier) :
+
+- `add_header Strict-Transport-Security "max-age=86400" always;`
+
+Points importants :
+
+- Ne pas ajouter `preload`.
+- Éviter une durée longue au début ; augmenter après validation.
+
+Recharger Nginx :
+
+- `sudo nginx -t`
+- `sudo systemctl reload nginx`
+
+### 6bis.5) Firewall UFW (rappel) + vérification
+
+Vérifier que seuls SSH/80/443 sont ouverts :
+
+- `sudo ufw status verbose`
+
+Attendu : `OpenSSH` + `Nginx Full` et rien d’autre.
+
+Si tu dois (re)appliquer :
+
+- `sudo ufw allow OpenSSH`
+- `sudo ufw allow 'Nginx Full'`
+- `sudo ufw enable`
+
+### 6bis.6) Validation depuis l’extérieur (checklist)
+
+Depuis une machine extérieure :
+
+1. HTTP redirige vers HTTPS
+
+- `curl -I http://space-invader.jlg-consulting.com/`
+
+Attendu : code `301`/`308` et un header `Location: https://space-invader.jlg-consulting.com/...`.
+
+2. HTTPS répond sans erreur TLS
+
+- `curl -I https://space-invader.jlg-consulting.com/`
+
+Attendu : réponse HTTP (200/304/3xx acceptables selon ton app) sans erreur TLS.
+
+3. HSTS présent
+
+- `curl -I https://space-invader.jlg-consulting.com/ | grep -i strict-transport-security || true`
+
+Attendu : `Strict-Transport-Security: max-age=86400`.
+
+4. Vérifier les dates du certificat
+
+- `echo | openssl s_client -connect space-invader.jlg-consulting.com:443 -servername space-invader.jlg-consulting.com 2>/dev/null | openssl x509 -noout -subject -issuer -dates`
+
+### 6bis.7) Renouvellement automatique (systemd timer) + dry-run
+
+Tester le renouvellement :
+
+- `sudo certbot renew --dry-run`
+
+Vérifier le mécanisme automatique (Debian) :
+
+- `systemctl list-timers --all | grep -i certbot || true`
+- `systemctl status certbot.timer --no-pager || true`
+
+Vérifier les logs :
+
+- `sudo journalctl -u certbot --since "7 days ago" --no-pager || true`
+
+### 6bis.8) Dépannage rapide (cas fréquents)
+
+1. Port 80 non joignable depuis Internet
+
+- Vérifier UFW : `sudo ufw status verbose`
+- Vérifier Nginx : `sudo ss -lntp | egrep ':80 |:443 ' || true`
+- Vérifier firewall OVH / règles réseau : s’assurer que 80/443 sont ouverts
+
+2. DNS non propagé / mauvais enregistrement
+
+- `nslookup space-invader.jlg-consulting.com 1.1.1.1`
+- `dig +short space-invader.jlg-consulting.com A`
+
+3. Conflit : un service écoute déjà sur 80/443
+
+- `sudo ss -lntp | egrep ':80 |:443 ' || true`
+
+4. Certbot a cassé la config Nginx
+
+- `sudo nginx -t`
+- Revenir temporairement en arrière (restaurer le fichier vhost) puis relancer `certbot --nginx`
+
+5. Certificat existant / ancien
+
+- Lister : `sudo certbot certificates`
+- Forcer renouvellement (si nécessaire) : `sudo certbot renew --force-renewal`
+
 ## 7) Dépannage rapide
 
 - Logs Nginx :
