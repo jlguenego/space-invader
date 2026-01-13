@@ -246,7 +246,7 @@ Elle est basée uniquement sur le référentiel [/docs](docs/) (et clarification
 
   - But: Déploiement reproductible sur VPS ; Livrable: `project/docs/deploy.md` ; Acceptation: déployer sans écraser `server/data/` ; Deps: id042, id043 ; Docs: /docs/10-exploitation-et-maintenance.md → “Procédure de déploiement”, /docs/09-cicd-et-deploiement.md → “Déploiement”.
 
-- [ ] **id046** **(P1)** _(S)_ Documenter le runbook incidents (site down, POST scores en erreur, classement vide)
+- [x] **id046** **(P1)** _(S)_ Documenter le runbook incidents (site down, POST scores en erreur, classement vide)
 
   - But: Accélérer le diagnostic ; Livrable: `project/docs/runbook.md` ; Acceptation: chaque incident a “Vérifier” + “Actions” ; Deps: id016 ; Docs: /docs/10-exploitation-et-maintenance.md → “Gestion des incidents”.
 
