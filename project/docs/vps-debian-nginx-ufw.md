@@ -9,6 +9,10 @@ Contexte projet : le domaine cible est `space-invader.jlg-consulting.com` et le 
 - Accès SSH au VPS.
 - Le DNS du sous-domaine pointe vers l’IP publique du VPS.
 
+Note : l’installation Docker (Docker Engine + plugin `docker compose`) est documentée séparément dans `project/docs/vps-debian-docker-compose.md`.
+
+Hypothèse pour les commandes ci-dessous : le dépôt est cloné sur le VPS dans `$HOME/space-invader`.
+
 Sur ton poste (Windows), vérifier que le hostname résout :
 
 - `nslookup -type=A space-invader.jlg-consulting.com 1.1.1.1`
@@ -169,11 +173,41 @@ Sur le VPS :
 
 2. Créer le site Nginx
 
-Créer `/etc/nginx/sites-available/space-invader.jlg-consulting.com` en te basant sur le template versionné du repo :
+Avant d’obtenir le certificat, ne mets pas un vhost `listen 443 ssl` “final” : `nginx -t` échouera si les fichiers `/etc/letsencrypt/live/...` n’existent pas encore.
 
-- `project/docs/nginx/space-invader.jlg-consulting.com.conf`
+Étape A — créer un vhost **HTTP-only** (safe) pour permettre le challenge HTTP-01 :
 
-Important : avant obtention du certificat, tu peux laisser le bloc 443 présent mais inactif, ou le laisser tel quel et obtenir le cert ensuite.
+- `sudo tee /etc/nginx/sites-available/space-invader.jlg-consulting.com > /dev/null <<'EOF'
+  server {
+  listen 80;
+  listen [::]:80;
+
+  server_name space-invader.jlg-consulting.com;
+
+  location ^~ /.well-known/acme-challenge/ {
+  root /var/www/letsencrypt;
+  default_type "text/plain";
+  try_files $uri =404;
+  }
+
+  location / { # temporaire : le HTTPS sera activé par Certbot (puis on appliquera le template du repo)
+  return 200 "nginx ok (http)";
+  }
+  }
+  EOF`
+
+Étape B — activer le site et recharger Nginx :
+
+- `sudo ln -sf /etc/nginx/sites-available/space-invader.jlg-consulting.com /etc/nginx/sites-enabled/space-invader.jlg-consulting.com`
+- `sudo rm -f /etc/nginx/sites-enabled/default`
+- `sudo nginx -t`
+- `sudo systemctl reload nginx`
+
+Étape C — après obtention du certificat (voir section suivante), appliquer le template versionné du repo (config finale HTTP→HTTPS + reverse-proxy) :
+
+- `sudo cp -f ~/space-invader/project/docs/nginx/space-invader.jlg-consulting.com.conf /etc/nginx/sites-available/space-invader.jlg-consulting.com`
+- `sudo nginx -t`
+- `sudo systemctl reload nginx`
 
 3. Activer le site
 
@@ -199,6 +233,12 @@ Obtenir et installer le certificat (ACME HTTP-01) :
 
 - `sudo certbot --nginx -d space-invader.jlg-consulting.com`
 
+Puis appliquer le template du repo (si ce n’est pas déjà fait) :
+
+- `sudo cp -f ~/space-invader/project/docs/nginx/space-invader.jlg-consulting.com.conf /etc/nginx/sites-available/space-invader.jlg-consulting.com`
+- `sudo nginx -t`
+- `sudo systemctl reload nginx`
+
 Notes :
 
 - Certbot peut proposer d’activer la redirection HTTP→HTTPS : accepter (la config du template la fait déjà, mais Certbot peut la réécrire).
@@ -212,19 +252,17 @@ Vérifier :
 
 ### 6bis.4) Activer HSTS (valeur prudente)
 
-Dans le bloc `server` 443 du vhost, ajouter (ou vérifier) :
+La manière la plus simple (et reproductible) est d’appliquer le template versionné du repo, qui contient déjà un HSTS prudent (`max-age=86400`, sans `preload`).
 
-- `add_header Strict-Transport-Security "max-age=86400" always;`
+Commande (copier/coller) :
 
-Points importants :
+- `sudo cp -f ~/space-invader/project/docs/nginx/space-invader.jlg-consulting.com.conf /etc/nginx/sites-available/space-invader.jlg-consulting.com && sudo nginx -t && sudo systemctl reload nginx`
 
-- Ne pas ajouter `preload`.
-- Éviter une durée longue au début ; augmenter après validation.
+Vérifier que l’header est présent (depuis une machine extérieure) :
 
-Recharger Nginx :
+- `curl -I https://space-invader.jlg-consulting.com/ | grep -i strict-transport-security || true`
 
-- `sudo nginx -t`
-- `sudo systemctl reload nginx`
+Attendu : `Strict-Transport-Security: max-age=86400`.
 
 ### 6bis.5) Firewall UFW (rappel) + vérification
 
