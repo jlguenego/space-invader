@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read Bun version
+        id: bun
+        run: echo "version=$(tr -d '\r\n' < .bun-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ steps.bun.outputs.version }}
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ steps.bun.outputs.version }}-${{ hashFiles('project/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-${{ steps.bun.outputs.version }}-
+
+      - name: Verify Bun version
+        run: |
+          bun --version
+          test "$(bun --version)" = "${{ steps.bun.outputs.version }}"
+
+      - name: Install dependencies
+        working-directory: project
+        run: bun install
+
+      - name: Format check
+        working-directory: project
+        run: bun run format:check
+
+      - name: Lint
+        working-directory: project
+        run: bun run lint
+
+      - name: Typecheck
+        working-directory: project
+        run: bun run typecheck
+
+      - name: Tests
+        working-directory: project
+        run: bun test
+
+      - name: Build
+        working-directory: project
+        run: bun run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: space-invaders-build
+          if-no-files-found: error
+          path: |
+            project/client/dist
+            project/server/src
+            project/server/package.json
+            project/server/tsconfig.json
+            project/package.json
+            project/bun.lock
+            project/tsconfig.json
+            project/Dockerfile
+            project/docker-compose.yml
