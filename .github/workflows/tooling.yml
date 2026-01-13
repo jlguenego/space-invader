@@ -2,8 +2,9 @@ name: Tooling (Bun)
 
 on:
   pull_request:
+    branches: [master]
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   bun-version:
