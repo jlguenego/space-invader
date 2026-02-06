@@ -37,10 +37,7 @@ export function formatFileSize(bytes: number): string {
  *
  * Never throws — the caller can safely fire-and-forget.
  */
-export async function checkScoresFileSize(
-  scoresPath: string,
-  logger: Logger,
-): Promise<void> {
+export async function checkScoresFileSize(scoresPath: string, logger: Logger): Promise<void> {
   try {
     const stat = await fs.stat(scoresPath);
 

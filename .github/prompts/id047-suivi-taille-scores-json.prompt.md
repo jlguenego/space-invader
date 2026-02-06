@@ -18,6 +18,7 @@ Tu es un développeur back-end TypeScript expérimenté, spécialisé dans l'obs
 Ajouter un mécanisme de suivi de la taille du fichier `scores.json` via des logs structurés, afin de permettre une surveillance manuelle de la croissance des données en production (MVP mono-instance, pas de métriques/alerting automatisé).
 
 Le log doit être émis :
+
 - **au démarrage du serveur** (taille initiale),
 - **périodiquement** (intervalle raisonnable, ex : toutes les heures) pour suivre l'évolution sans overhead.
 
@@ -80,6 +81,7 @@ L'objectif est purement opérationnel : rendre la taille visible dans les logs s
 ### Logger existant
 
 Le logger du projet (`project/server/src/logger.ts`) :
+
 - Expose `createLogger(options?)` qui retourne un objet `Logger` avec `debug`, `info`, `warn`, `error`, `child`.
 - Chaque log est un objet JSON écrit sur stdout (info/debug) ou stderr (warn/error).
 - Champs structurés : `ts`, `level`, `msg`, et champs libres additionnels.
@@ -88,6 +90,7 @@ Le logger du projet (`project/server/src/logger.ts`) :
 ### Score Repository existant
 
 Le module `project/server/src/storage/score-repository.ts` :
+
 - Expose `createScoreRepository(options?)` qui retourne `{ readAll, append, getFilePath }`.
 - `getFilePath()` retourne le chemin absolu de `scores.json`.
 - Le chemin par défaut est `process.env.DATA_DIR ?? path.resolve(process.cwd(), 'data')` + `/scores.json`.
@@ -96,6 +99,7 @@ Le module `project/server/src/storage/score-repository.ts` :
 ### Point d'entrée serveur
 
 `project/server/src/index.ts` :
+
 - Crée un logger racine `createLogger({ baseFields: { component: 'server' } })`.
 - Crée l'app via `createApp({ logger })`.
 - Écoute sur `host:port`.
@@ -104,6 +108,7 @@ Le module `project/server/src/storage/score-repository.ts` :
 ### App Express
 
 `project/server/src/app.ts` :
+
 - `createApp({ logger })` retourne l'app Express configurée.
 - Le score repository est créé dans `createApp` (ou dans les routes).
 
